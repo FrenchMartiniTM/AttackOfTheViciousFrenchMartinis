@@ -7,7 +7,7 @@ var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-demo', {
 });
 
 var player;
-var starfield;
+var bar;
 var cursors;
 var ACCLERATION = 300;
 var DRAG = 400;
@@ -24,17 +24,16 @@ var EXPLOSION_SPEED = 5;
 
 
 function preload() {
-    game.load.image('starfield', '/assets/bar.png');
-    game.load.image('ship', '/assets/Bartender_80_88_invert.png');
-    game.load.image('bullet', '/assets/green_olive_15_19.png');
-    game.load.image('enemy-green', '/assets/glass_80_115_rotated.png');
-     game.load.spritesheet('explosion', '/assets/explode.png',128, 128);
-
+    game.load.image('bar', 'assets/images/bar.png');
+    game.load.image('ship', 'assets/images/Bartender_80_88_invert.png');
+    game.load.image('bullet', 'assets/images/green_olive_15_19.png');
+    game.load.image('enemy-green', 'assets/images/glass_80_115_rotated.png');
+    game.load.spritesheet('explosion', 'assets/images/explode1.png', 128, 128);
 }
 
 function create() {
-    //  The scrolling starfield background
-    starfield = game.add.tileSprite(0, 0, 800, 600, 'starfield');
+    //  The scrolling bar background
+    bar = game.add.tileSprite(0, 0, 800, 600, 'bar');
     //  Our bullet group
     bullets = game.add.group();
     bullets.enableBody = true;
@@ -114,7 +113,7 @@ function create() {
 }
 function update() {
     //  Scroll the background
-    //starfield.tilePosition.y = 2; //ours is stationary
+    //bar.tilePosition.y = 2; //ours is stationary
 
     //  Reset the player, then check for movement keys
     player.body.velocity.setTo(0, 0);
