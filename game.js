@@ -13,7 +13,7 @@ var ACCLERATION = 300;
 var DRAG = 400;
 var MAXSPEED = 400;
 //var bank; //to rotate player
-//var shipTrail;
+//var playerTrail;
 var bullets;
 var fireButton;
 var bulletTimer = 0;
@@ -25,7 +25,7 @@ var EXPLOSION_SPEED = 5;
 
 function preload() {
     game.load.image('bar', 'assets/images/bar.png');
-    game.load.image('ship', 'assets/images/Bartender_80_88_invert.png');
+    game.load.image('player', 'assets/images/Bartender_80_88_invert.png');
     game.load.image('bullet', 'assets/images/green_olive_15_19.png');
     game.load.image('enemy-green', 'assets/images/glass_80_115_rotated.png');
     game.load.spritesheet('explosion', 'assets/images/explode1.png', 128, 128);
@@ -45,7 +45,7 @@ function create() {
     bullets.setAll('checkWorldBounds', true);
 
     //  The hero!
-    player = game.add.sprite(400, 500, 'ship');
+    player = game.add.sprite(400, 500, 'player');
     player.anchor.setTo(0.5, 0.5);
     game.physics.enable(player, Phaser.Physics.ARCADE);
     cursors = game.input.keyboard.createCursorKeys();
@@ -54,16 +54,16 @@ function create() {
     //player.body.drag.setTo(DRAG, DRAG);
 
 
-    /*//  Add an emitter for the ship's trail
-     shipTrail = game.add.emitter(player.x, player.y + 10, 400);
-     shipTrail.width = 10;
-     shipTrail.makeParticles('bullet');
-     shipTrail.setXSpeed(30, -30);
-     shipTrail.setYSpeed(200, 180);
-     shipTrail.setRotation(50, -50);
-     shipTrail.setAlpha(1, 0.01, 800);
-     shipTrail.setScale(0.05, 0.4, 0.05, 0.4, 2000, Phaser.Easing.Quintic.Out);
-     shipTrail.start(false, 5000, 10);*/
+    /*//  Add an emitter for the player's trail
+     playerTrail = game.add.emitter(player.x, player.y + 10, 400);
+     playerTrail.width = 10;
+     playerTrail.makeParticles('bullet');
+     playerTrail.setXSpeed(30, -30);
+     playerTrail.setYSpeed(200, 180);
+     playerTrail.setRotation(50, -50);
+     playerTrail.setAlpha(1, 0.01, 800);
+     playerTrail.setScale(0.05, 0.4, 0.05, 0.4, 2000, Phaser.Easing.Quintic.Out);
+     playerTrail.start(false, 5000, 10);*/
 
 
     //  An explosion pool
@@ -119,7 +119,7 @@ function update() {
     player.body.velocity.setTo(0, 0);
     player.body.acceleration.x = 0;
 
-    /*//  Move ship towards MOUSE pointer
+    /*//  Move player towards MOUSE pointer
      if (game.input.x < game.width - 1 &&
      game.input.x > 1 &&
      game.input.y > 1 &&
@@ -128,11 +128,11 @@ function update() {
      var dist = game.input.x - player.x;
      player.body.velocity.x = MAXSPEED * game.math.clamp(dist / minDist, -1, 1);
      }*/
-    //  Update function for each enemy ship to update rotation etc
+    //  Update function for each enemy player to update rotation etc
 
 
     //  Check collisions
-    game.physics.arcade.overlap(player, greenEnemies, shipCollide, null, this); //TODO: Player live is set to false => GAME OVER
+    game.physics.arcade.overlap(player, greenEnemies, playerCollide, null, this); //TODO: Player live is set to false => GAME OVER
     game.physics.arcade.overlap(greenEnemies, bullets, hitEnemy, null, this);
 
     function fireBullet() {
@@ -154,7 +154,7 @@ function update() {
          //  And fire it
          bullet.reset(player.x, player.y + 0);
          bullet.body.velocity.y = -400;
-         //  Make bullet come out of tip of ship with right angle
+         //  Make bullet come out of tip of player with right angle
          var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
          bullet.reset(player.x + bulletOffset, player.y);
          bullet.angle = player.angle;
@@ -172,7 +172,7 @@ function update() {
 
             if (bullet) {
                 //  And fire it
-                //  Make bullet come out of tip of ship with right angle
+                //  Make bullet come out of tip of player with right angle
                 bullet.reset(player.x, player.y + 0); //The Reset component allows a Game Object to be reset and repositioned to a new location.
                 bullet.body.velocity.y = -500;
 
@@ -218,7 +218,7 @@ function update() {
 function render() {
 
 }
-function shipCollide(player, enemy) {//TODO: Player live is set to false => GAME OVER
+function playerCollide(player, enemy) {//TODO: Player live is set to false => GAME OVER
     var explosion = explosions.getFirstExists(false);
     explosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
     explosion.body.velocity.y = enemy.body.velocity.y;
