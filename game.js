@@ -1,4 +1,4 @@
-var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-demo', {
+var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-demo', {
     preload: preload,
     create: create,
     update: update,
@@ -108,12 +108,9 @@ function create() {
             enemy.body.velocity.y = ENEMY_SPEED;
             enemy.body.drag.x = 100;
 
-
             //  Send another enemy soon
             game.time.events.add(game.rnd.integerInRange(MIN_ENEMY_SPACING, MAX_ENEMY_SPACING), launchGreenEnemy);
         }
-
-
     }
 }
 
