@@ -7,11 +7,14 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-demo', {
 });
 
 var player;
+var playerHead;
 var bar;
+var barborder;
 var cursors;
 var ACCLERATION = 300;
 var DRAG = 400;
 var MAXSPEED = 400;
+var hasHitBarBorder;
 //var bank; //to rotate player
 //var playerTrail;
 var bullets;
@@ -21,9 +24,11 @@ var greenEnemies;
 var FACTOR_DIFFICULTY = 1; //TODO: Set with score or etc.
 var explosions;
 var EXPLOSION_SPEED = 5;
-
-var playerPosX = 400; // starting game constants
-var playerPosY = 404; // starting game constants
+//game constants
+var playerStartingPosX = 400;
+var playerStartingPosY = 404;
+var barBorderPosX = 0;
+var barBorderPosY = 470;
 
 function preload() {
     game.load.image('bar', 'assets/images/bar.png');
@@ -31,13 +36,23 @@ function preload() {
     game.load.image('bullet', 'assets/images/green_olive_15_19.png');
     game.load.image('enemy-green', 'assets/images/glass_80_115_rotated.png');
     game.load.spritesheet('explosion', 'assets/images/explode.png', 128, 128);
+    game.load.image('barborder', './assets/images/barborder.png');
+    game.load.image('playerhead', './assets/images/playerhead.png');
 }
 
 function create() {
     //Setting Arcade Physics system for all objects in the game
     game.physics.startSystem(Phaser.Physics.ARCADE);
+
     //  The scrolling bar background
     bar = game.add.tileSprite(0, 0, 800, 600, 'bar');
+
+    // Setting the bar border. TODO: Render the bar over it.
+    barborder = game.add.sprite(0, 470, 'barborder');
+    game.physics.enable(barborder, Phaser.Physics.ARCADE);
+    barborder.body.immovable = true;
+    //barborder.alpha = 0; // uncomment if you want the red line to disappear
+
     //  Our bullet group
     bullets = game.add.group();
     bullets.enableBody = true;
@@ -48,14 +63,19 @@ function create() {
     bullets.setAll('outOfBoundsKill', true);
     bullets.setAll('checkWorldBounds', true);
 
+
     //  The hero!
-    player = game.add.sprite(playerPosX, playerPosY, 'player');
+    player = game.add.sprite(playerStartingPosX, playerStartingPosY, 'player');
     player.anchor.setTo(0.5, 0.5);
     game.physics.enable(player, Phaser.Physics.ARCADE);
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     player.body.maxVelocity.setTo(MAXSPEED, MAXSPEED);
     //player.body.drag.setTo(DRAG, DRAG);
+    // Setting the player head. TODO: Render the player over it.
+    playerHead = game.add.sprite(396, 360, 'playerhead');
+    game.physics.enable(playerHead, Phaser.Physics.ARCADE);
+    //playerHead.alpha = 0; // uncomment if you want the red line to disappear
 
 
     /*//  Add an emitter for the player's trail
@@ -77,7 +97,7 @@ function create() {
     explosions.createMultiple(30, 'explosion');
     explosions.setAll('anchor.x', 0.5);
     explosions.setAll('anchor.y', 0.5);
-    explosions.forEach(function(explosion) {
+    explosions.forEach(function (explosion) {
         explosion.animations.add('explosion');
     });
     //  The baddies!
@@ -93,7 +113,7 @@ function create() {
     greenEnemies.setAll('outOfBoundsKill', true); //the object is killed when out of the boundaries
     greenEnemies.setAll('checkWorldBounds', true); // it checks every time if it's out of the bounds
 
-    greenEnemies.forEach(function(enemy) {
+    greenEnemies.forEach(function (enemy) {
         enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4);
     });
 
@@ -125,7 +145,8 @@ function update() {
     //  Reset the player, then check for movement keys
     player.body.velocity.setTo(0, 0);
     player.body.acceleration.x = 0;
-
+    playerHead.body.velocity.setTo(0, 0);
+    playerHead.body.acceleration.x = 0;
     /*//  Move player towards MOUSE pointer
      if (game.input.x < game.width - 1 &&
      game.input.x > 1 &&
@@ -139,9 +160,9 @@ function update() {
 
 
     //  Check collisions
-    game.physics.arcade.overlap(player, greenEnemies, playerCollide, null, this); //TODO: Player live is set to false => GAME OVER
+    game.physics.arcade.overlap(playerHead, greenEnemies, playerCollide, null, this); //TODO: Player live is set to false => GAME OVER
     game.physics.arcade.overlap(greenEnemies, bullets, hitEnemy, null, this);
-
+    game.physics.arcade.overlap(barborder, greenEnemies, barCollide, null, this);
     function fireBullet() {
 
 
@@ -198,9 +219,11 @@ function update() {
     if (cursors.left.isDown) {
         player.body.velocity.x = -MAXSPEED; //without smootness of movement
         //player.body.acceleration.x = -ACCLERATION; //with up
+        playerHead.body.velocity.x = -MAXSPEED;
     } else if (cursors.right.isDown) {
         player.body.velocity.x = MAXSPEED; //without smootness of movement
         //player.body.acceleration.x = ACCLERATION;
+        playerHead.body.velocity.x = MAXSPEED;
     }
     //  Fire bullet
     if (fireButton.isDown || game.input.activePointer.isDown) {
@@ -211,14 +234,18 @@ function update() {
     //  Stop at screen edges
     if (player.x > game.width - 50) {
         player.x = game.width - 50;
+        playerHead.x = player.x - 3;
         //player.body.acceleration.x = 0;//with smootness of movement
     }
     if (player.x < 50) {
         player.x = 50;
+        playerHead.x = player.x - 3;
         //player.body.acceleration.x = 0;//with smootness of movement
     }
-
-
+    
+    //  Collide b/n the glasses and the bar border.
+    //hasHitBarBorder = game.physics.arcade.collide(barborder, greenEnemies);
+    //console.log(hasHitBarBorder);
 }
 
 function render() {
@@ -233,7 +260,14 @@ function playerCollide(player, enemy) { //TODO: Player live is set to false => G
     explosion.play('explosion', EXPLOSION_SPEED, false, true);
     enemy.kill();
 }
-
+function barCollide(bar, enemy) { //TODO: Player lives --
+    var explosion = explosions.getFirstExists(false);
+    explosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
+    explosion.body.velocity.y = enemy.body.velocity.y;
+    explosion.alpha = 0.7;
+    explosion.play('explosion', EXPLOSION_SPEED, false, true);
+    enemy.kill();
+}
 function hitEnemy(enemy, bullet) {
     var explosion = explosions.getFirstExists(false);
     explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
@@ -241,5 +275,5 @@ function hitEnemy(enemy, bullet) {
     explosion.alpha = 0.7;
     explosion.play('explosion', EXPLOSION_SPEED, false, true);
     enemy.kill();
-    bullet.kill()
+    bullet.kill();
 }
