@@ -17,7 +17,7 @@ function init() {
   this.MAXSPEED = 400;
   this.FACTOR_DIFFICULTY = 1;  //TODO: Set with score or etc.
   this.EXPLOSION_SPEED = this.EXPLOSION_SPEED || 5;
-}
+};
 
 function create() {
     //  The scrolling bar background
@@ -92,7 +92,8 @@ function create() {
             game.time.events.add(game.rnd.integerInRange(MIN_ENEMY_SPACING, MAX_ENEMY_SPACING), launchGreenEnemy(factor_difficylty, greenEnemies, game));
         }
     }
-}
+};
+
 function update() {
     //  Scroll the background
     //bar.tilePosition.y = 2; //ours is stationary
