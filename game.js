@@ -6,29 +6,31 @@ var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-demo', {
 
 });
 
-var player;
-var playerHead;
-var bar;
-var barborder;
-var cursors;
-var ACCLERATION = 300;
-var DRAG = 400;
-var MAXSPEED = 400;
-var hasHitBarBorder;
-//var bank; //to rotate player
-//var playerTrail;
-var bullets;
-var fireButton;
-var bulletTimer = 0;
-var greenEnemies;
-var FACTOR_DIFFICULTY = 1; //TODO: Set with score or etc.
-var explosions;
-var EXPLOSION_SPEED = 5;
-//game constants
-var playerStartingPosX = 400;
-var playerStartingPosY = 404;
-var barBorderPosX = 0;
-var barBorderPosY = 470;
+var player,
+    playerHead,
+    bar,
+    barborder,
+    cursors,
+    score = 0,
+    scoreText,
+    hasHitBarBorder,
+    bullets,
+    bulletTimer = 0,
+    fireButton,
+    greenEnemies,
+    explosions,
+    //Constants
+    PLAYER_STARTING_POSITION_X = 400,
+    PLAYER_STARTING_POSITION_Y = 404,
+    PLAYER_HEAD_STARTING_POSITION_X = 396,
+    PLAYER_HEAD_STARTING_POSITION_Y = 360,
+    BAR_BORDER_POSITION_X = 0,
+    BAR_BORDER_POSITION_Y = 470,
+    ACCLERATION = 300,
+    DRAG = 400,
+    MAX_SPEED = 400,
+    FACTOR_DIFFICULTY = 1, //TODO: Set with score or etc.
+    EXPLOSION_SPEED = 5;
 
 function preload() {
     game.load.image('bar', 'assets/images/bar.png');
@@ -47,11 +49,14 @@ function create() {
     //  The scrolling bar background
     bar = game.add.tileSprite(0, 0, 800, 600, 'bar');
 
-    // Setting the bar border. TODO: Render the bar over it.
-    barborder = game.add.sprite(0, 470, 'barborder');
+    // Setting the bar border. 
+    barborder = game.add.sprite(BAR_BORDER_POSITION_X, BAR_BORDER_POSITION_Y, 'barborder');
     game.physics.enable(barborder, Phaser.Physics.ARCADE);
     barborder.body.immovable = true;
     //barborder.alpha = 0; // uncomment if you want the red line to disappear
+
+    //Setting score text
+    scoreText = game.add.text(600, 550, 'score: 0', { fontSize: '32px', fill: '#F00' });
 
     //  Our bullet group
     bullets = game.add.group();
@@ -65,15 +70,15 @@ function create() {
 
 
     //  The hero!
-    player = game.add.sprite(playerStartingPosX, playerStartingPosY, 'player');
+    player = game.add.sprite(PLAYER_STARTING_POSITION_X, PLAYER_STARTING_POSITION_Y, 'player');
     player.anchor.setTo(0.5, 0.5);
     game.physics.enable(player, Phaser.Physics.ARCADE);
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    player.body.maxVelocity.setTo(MAXSPEED, MAXSPEED);
+    player.body.maxVelocity.setTo(MAX_SPEED, MAX_SPEED);
     //player.body.drag.setTo(DRAG, DRAG);
-    // Setting the player head. TODO: Render the player over it.
-    playerHead = game.add.sprite(396, 360, 'playerhead');
+    // Setting the player head. 
+    playerHead = game.add.sprite(PLAYER_HEAD_STARTING_POSITION_X, PLAYER_HEAD_STARTING_POSITION_Y, 'playerhead');
     game.physics.enable(playerHead, Phaser.Physics.ARCADE);
     //playerHead.alpha = 0; // uncomment if you want the red line to disappear
 
@@ -154,7 +159,7 @@ function update() {
      game.input.y < game.height - 1) {
      var minDist = 100;
      var dist = game.input.x - player.x;
-     player.body.velocity.x = MAXSPEED * game.math.clamp(dist / minDist, -1, 1);
+     player.body.velocity.x = MAX_SPEED * game.math.clamp(dist / minDist, -1, 1);
      }*/
     //  Update function for each enemy player to update rotation etc
 
@@ -217,13 +222,13 @@ function update() {
     }
 
     if (cursors.left.isDown) {
-        player.body.velocity.x = -MAXSPEED; //without smootness of movement
+        player.body.velocity.x = -MAX_SPEED; //without smootness of movement
         //player.body.acceleration.x = -ACCLERATION; //with up
-        playerHead.body.velocity.x = -MAXSPEED;
+        playerHead.body.velocity.x = -MAX_SPEED;
     } else if (cursors.right.isDown) {
-        player.body.velocity.x = MAXSPEED; //without smootness of movement
+        player.body.velocity.x = MAX_SPEED; //without smootness of movement
         //player.body.acceleration.x = ACCLERATION;
-        playerHead.body.velocity.x = MAXSPEED;
+        playerHead.body.velocity.x = MAX_SPEED;
     }
     //  Fire bullet
     if (fireButton.isDown || game.input.activePointer.isDown) {
@@ -242,7 +247,7 @@ function update() {
         playerHead.x = player.x - 3;
         //player.body.acceleration.x = 0;//with smootness of movement
     }
-    
+
     //  Collide b/n the glasses and the bar border.
     //hasHitBarBorder = game.physics.arcade.collide(barborder, greenEnemies);
     //console.log(hasHitBarBorder);
@@ -276,4 +281,7 @@ function hitEnemy(enemy, bullet) {
     explosion.play('explosion', EXPLOSION_SPEED, false, true);
     enemy.kill();
     bullet.kill();
+    //  Add and update the score
+    score += 10;
+    scoreText.text = 'Score: ' + score;
 }
