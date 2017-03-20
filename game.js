@@ -22,6 +22,8 @@ var FACTOR_DIFFICULTY = 1; //TODO: Set with score or etc.
 var explosions;
 var EXPLOSION_SPEED = 5;
 
+var playerPosX = 400; // starting game constants
+var playerPosY = 404; // starting game constants
 
 function preload() {
     game.load.image('bar', 'assets/images/bar.png');
@@ -32,6 +34,8 @@ function preload() {
 }
 
 function create() {
+    //Setting Arcade Physics system for all objects in the game
+    game.physics.startSystem(Phaser.Physics.ARCADE);
     //  The scrolling bar background
     bar = game.add.tileSprite(0, 0, 800, 600, 'bar');
     //  Our bullet group
@@ -45,7 +49,7 @@ function create() {
     bullets.setAll('checkWorldBounds', true);
 
     //  The hero!
-    player = game.add.sprite(400, 500, 'player');
+    player = game.add.sprite(playerPosX, playerPosY, 'player');
     player.anchor.setTo(0.5, 0.5);
     game.physics.enable(player, Phaser.Physics.ARCADE);
     cursors = game.input.keyboard.createCursorKeys();
