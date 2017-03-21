@@ -21,6 +21,9 @@ var player,
     explosions,
     pauseKey,
     pauseImage,
+    livesCount = 5,
+    hearts,
+    heart,
     //Constants
     PLAYER_STARTING_POSITION_X = 400,
     PLAYER_STARTING_POSITION_Y = 404,
@@ -43,7 +46,8 @@ function preload() {
     game.load.image('barborder', './assets/images/barborder.png');
     game.load.image('playerhead', './assets/images/playerhead.png');
     game.load.image('paused', './assets/images/paused.png');
-}p
+    game.load.image('heart', './assets/images/heart.png');
+}
 
 function create() {
     //Setting Arcade Physics system for all objects in the game
@@ -64,6 +68,12 @@ function create() {
     //Implementing the pause
     pauseKey = this.input.keyboard.addKey(Phaser.Keyboard.P);
     pauseKey.onDown.add(togglePause, this);
+
+    //Hearts group
+    hearts = game.add.group();
+    for (var i = 0; i < livesCount; i += 1) {
+        heart = hearts.create(0 + i * 33, 560, 'heart');
+    }
     //  Our bullet group
     bullets = game.add.group();
     bullets.enableBody = true;
@@ -271,6 +281,9 @@ function playerCollide(player, enemy) { //TODO: Player live is set to false => G
     explosion.alpha = 0.7;
     explosion.play('explosion', EXPLOSION_SPEED, false, true);
     enemy.kill();
+    //destroying the lives
+    hearts.callAll('kill');
+    //TODO: Game Over
 }
 function barCollide(bar, enemy) { //TODO: Player lives --
     var explosion = explosions.getFirstExists(false);
@@ -279,6 +292,22 @@ function barCollide(bar, enemy) { //TODO: Player lives --
     explosion.alpha = 0.7;
     explosion.play('explosion', EXPLOSION_SPEED, false, true);
     enemy.kill();
+    //destroying lives one by one
+    //Option 1
+    hearts.children.forEach(function (heart, index) {
+        if (index === livesCount - 1) {
+            heart.kill();
+            livesCount -= 1;
+        }
+        if (livesCount <= 0) {
+            //TODO: GAMEOVER
+        }
+    });
+    //Option 2 - throws when the array is empty, so for now use option 1
+    // hearts.children.pop().kill();
+    // if(livesCount <= 0){
+    //     //TODO: GAMEOVER
+    // }
 }
 function hitEnemy(enemy, bullet) {
     var explosion = explosions.getFirstExists(false);
