@@ -55,7 +55,7 @@ function create() {
 
     //  The scrolling bar background
     bar = game.add.tileSprite(0, 0, 800, 600, 'bar');
-
+    
     // Setting the bar border. 
     barborder = game.add.sprite(BAR_BORDER_POSITION_X, BAR_BORDER_POSITION_Y, 'barborder');
     game.physics.enable(barborder, Phaser.Physics.ARCADE);
