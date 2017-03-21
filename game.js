@@ -19,6 +19,8 @@ var player,
     fireButton,
     greenEnemies,
     explosions,
+    pauseKey,
+    pauseImage,
     //Constants
     PLAYER_STARTING_POSITION_X = 400,
     PLAYER_STARTING_POSITION_Y = 404,
@@ -40,7 +42,8 @@ function preload() {
     game.load.spritesheet('explosion', 'assets/images/explode.png', 128, 128);
     game.load.image('barborder', './assets/images/barborder.png');
     game.load.image('playerhead', './assets/images/playerhead.png');
-}
+    game.load.image('paused', './assets/images/paused.png');
+}p
 
 function create() {
     //Setting Arcade Physics system for all objects in the game
@@ -58,6 +61,9 @@ function create() {
     //Setting score text
     scoreText = game.add.text(600, 550, 'score: 0', { fontSize: '32px', fill: '#F00' });
 
+    //Implementing the pause
+    pauseKey = this.input.keyboard.addKey(Phaser.Keyboard.P);
+    pauseKey.onDown.add(togglePause, this);
     //  Our bullet group
     bullets = game.add.group();
     bullets.enableBody = true;
@@ -146,7 +152,6 @@ function create() {
 function update() {
     //  Scroll the background
     //bar.tilePosition.y = 2; //ours is stationary
-
     //  Reset the player, then check for movement keys
     player.body.velocity.setTo(0, 0);
     player.body.acceleration.x = 0;
@@ -251,6 +256,8 @@ function update() {
     //  Collide b/n the glasses and the bar border.
     //hasHitBarBorder = game.physics.arcade.collide(barborder, greenEnemies);
     //console.log(hasHitBarBorder);
+
+
 }
 
 function render() {
@@ -284,4 +291,14 @@ function hitEnemy(enemy, bullet) {
     //  Add and update the score
     score += 10;
     scoreText.text = 'Score: ' + score;
+}
+
+function togglePause() {
+    game.physics.arcade.isPaused = (game.physics.arcade.isPaused) ? false : true;
+    if (game.physics.arcade.isPaused) {
+        pauseImage = game.add.sprite(250, 100, 'paused');
+    }
+    else {
+        pauseImage.destroy();
+    }
 }
