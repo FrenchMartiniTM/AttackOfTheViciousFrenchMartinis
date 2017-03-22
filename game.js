@@ -1,48 +1,59 @@
-var game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-demo', {
-    preload: preload,
-    create: create,
-    update: update,
-    render: render
-
+const game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-demo', {
+    preload,
+    create,
+    update,
+    render
 });
 
 var player,
     playerHead,
+
     bar,
     barborder,
+    hasHitBarBorder,
+
     cursors,
     score = 0,
     scoreText,
-    hasHitBarBorder,
+
     bullets,
     bulletTimer = 0,
+
     fireButton,
-    greenEnemies,
     explosions,
+    greenEnemies,
+    enemyLaunchTimer,
+
     pauseKey,
     pauseImage,
-    livesCount = 5,
-    hearts,
+
     heart,
-    //Constants
-    PLAYER_STARTING_POSITION_X = 400,
+    hearts,
+    livesCount = 1,
+    gameOver;
+
+//Constants
+const PLAYER_STARTING_POSITION_X = 400,
     PLAYER_STARTING_POSITION_Y = 404,
+
     PLAYER_HEAD_STARTING_POSITION_X = 396,
     PLAYER_HEAD_STARTING_POSITION_Y = 360,
+
     BAR_BORDER_POSITION_X = 0,
     BAR_BORDER_POSITION_Y = 470,
+
     ACCLERATION = 300,
     DRAG = 400,
     MAX_SPEED = 400,
-    FACTOR_DIFFICULTY = 1, //TODO: Set with score or etc.
-    EXPLOSION_SPEED = 5;
+    EXPLOSION_SPEED = 5,
+    FACTOR_DIFFICULTY = 1; //TODO: Set with score or etc.    
 
 function preload() {
     game.load.image('bar', 'assets/images/bar.png');
     game.load.image('player', 'assets/images/Bartender_80_88_invert.png');
     game.load.image('bullet', 'assets/images/green_olive_15_19.png');
     game.load.image('enemy-green', 'assets/images/glass_80_115_rotated.png');
-    game.load.spritesheet('explosion', 'assets/images/explode.png', 128, 128);
+    game.load.spritesheet('explosion', 'assets/images/explode.png', 133, 95);
     game.load.image('barborder', './assets/images/barborder.png');
     game.load.image('playerhead', './assets/images/playerhead.png');
     game.load.image('paused', './assets/images/paused.png');
@@ -55,12 +66,17 @@ function create() {
 
     //  The scrolling bar background
     bar = game.add.tileSprite(0, 0, 800, 600, 'bar');
-    
+
     // Setting the bar border. 
     barborder = game.add.sprite(BAR_BORDER_POSITION_X, BAR_BORDER_POSITION_Y, 'barborder');
     game.physics.enable(barborder, Phaser.Physics.ARCADE);
     barborder.body.immovable = true;
     //barborder.alpha = 0; // uncomment if you want the red line to disappear
+
+    // Game over text
+    gameOver = game.add.text(game.world.centerX, game.world.centerY, 'GAME OVER!', { font: '84px Arial', fill: '#fff' });
+    gameOver.anchor.setTo(0.5, 0.5);
+    gameOver.visible = false;
 
     //Setting score text
     scoreText = game.add.text(600, 550, 'score: 0', { fontSize: '32px', fill: '#F00' });
@@ -88,6 +104,7 @@ function create() {
     //  The hero!
     player = game.add.sprite(PLAYER_STARTING_POSITION_X, PLAYER_STARTING_POSITION_Y, 'player');
     player.anchor.setTo(0.5, 0.5);
+    player.events.onKilled.add(endGame);
     game.physics.enable(player, Phaser.Physics.ARCADE);
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -118,7 +135,7 @@ function create() {
     explosions.createMultiple(30, 'explosion');
     explosions.setAll('anchor.x', 0.5);
     explosions.setAll('anchor.y', 0.5);
-    explosions.forEach(function (explosion) {
+    explosions.forEach(function(explosion) {
         explosion.animations.add('explosion');
     });
     //  The baddies!
@@ -134,7 +151,7 @@ function create() {
     greenEnemies.setAll('outOfBoundsKill', true); //the object is killed when out of the boundaries
     greenEnemies.setAll('checkWorldBounds', true); // it checks every time if it's out of the bounds
 
-    greenEnemies.forEach(function (enemy) {
+    greenEnemies.forEach(function(enemy) {
         enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4);
     });
 
@@ -154,17 +171,17 @@ function create() {
             enemy.body.drag.x = 100;
 
             //  Send another enemy soon
-            game.time.events.add(game.rnd.integerInRange(MIN_ENEMY_SPACING, MAX_ENEMY_SPACING), launchGreenEnemy);
+            enemyLaunchTimer = game.time.events.add(game.rnd.integerInRange(MIN_ENEMY_SPACING, MAX_ENEMY_SPACING), launchGreenEnemy);
         }
-    }
+    };
 }
 
 function update() {
     //  Scroll the background
-    //bar.tilePosition.y = 2; //ours is stationary
+    bar.tilePosition.y = 2; //ours is stationary
     //  Reset the player, then check for movement keys
     player.body.velocity.setTo(0, 0);
-    player.body.acceleration.x = 0;
+    //player.body.acceleration.x = 0;
     playerHead.body.velocity.setTo(0, 0);
     playerHead.body.acceleration.x = 0;
     /*//  Move player towards MOUSE pointer
@@ -183,6 +200,7 @@ function update() {
     game.physics.arcade.overlap(playerHead, greenEnemies, playerCollide, null, this); //TODO: Player live is set to false => GAME OVER
     game.physics.arcade.overlap(greenEnemies, bullets, hitEnemy, null, this);
     game.physics.arcade.overlap(barborder, greenEnemies, barCollide, null, this);
+
     function fireBullet() {
 
 
@@ -221,7 +239,7 @@ function update() {
             if (bullet) {
                 //  And fire it
                 //  Make bullet come out of tip of player with right angle
-                bullet.reset(player.x, player.y + 0); //The Reset component allows a Game Object to be reset and repositioned to a new location.
+                bullet.reset(player.x, player.y); //The Reset component allows a Game Object to be reset and repositioned to a new location.
                 bullet.body.velocity.y = -500;
 
                 //Create offset if object under angle
@@ -246,7 +264,7 @@ function update() {
         playerHead.body.velocity.x = MAX_SPEED;
     }
     //  Fire bullet
-    if (fireButton.isDown || game.input.activePointer.isDown) {
+    if (player.alive && (fireButton.isDown || game.input.activePointer.isDown)) {
         fireBullet();
     }
 
@@ -283,8 +301,9 @@ function playerCollide(player, enemy) { //TODO: Player live is set to false => G
     enemy.kill();
     //destroying the lives
     hearts.callAll('kill');
-    //TODO: Game Over
+    player.kill();
 }
+
 function barCollide(bar, enemy) { //TODO: Player lives --
     var explosion = explosions.getFirstExists(false);
     explosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
@@ -294,13 +313,13 @@ function barCollide(bar, enemy) { //TODO: Player lives --
     enemy.kill();
     //destroying lives one by one
     //Option 1
-    hearts.children.forEach(function (heart, index) {
+    hearts.children.forEach(function(heart, index) {
         if (index === livesCount - 1) {
             heart.kill();
             livesCount -= 1;
         }
         if (livesCount <= 0) {
-            //TODO: GAMEOVER
+            player.kill();
         }
     });
     //Option 2 - throws when the array is empty, so for now use option 1
@@ -309,6 +328,7 @@ function barCollide(bar, enemy) { //TODO: Player lives --
     //     //TODO: GAMEOVER
     // }
 }
+
 function hitEnemy(enemy, bullet) {
     var explosion = explosions.getFirstExists(false);
     explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
@@ -326,8 +346,14 @@ function togglePause() {
     game.physics.arcade.isPaused = (game.physics.arcade.isPaused) ? false : true;
     if (game.physics.arcade.isPaused) {
         pauseImage = game.add.sprite(250, 100, 'paused');
-    }
-    else {
+    } else {
         pauseImage.destroy();
     }
+}
+
+function endGame() {
+    gameOver.visible = true;
+    greenEnemies.callAll('kill');
+    playerHead.kill();
+    game.time.events.remove(enemyLaunchTimer);
 }
