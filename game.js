@@ -29,15 +29,15 @@ var player,
 
     heart,
     hearts,
-    livesCount = 1,
+    livesCount = 3,
     gameOver;
 
 //Constants
 const PLAYER_STARTING_POSITION_X = 400,
-    PLAYER_STARTING_POSITION_Y = 404,
+    PLAYER_STARTING_POSITION_Y = 500,
 
-    PLAYER_HEAD_STARTING_POSITION_X = 396,
-    PLAYER_HEAD_STARTING_POSITION_Y = 360,
+    PLAYER_HEAD_STARTING_POSITION_X = 395,
+    PLAYER_HEAD_STARTING_POSITION_Y = 455,
 
     BAR_BORDER_POSITION_X = 0,
     BAR_BORDER_POSITION_Y = 470,
@@ -105,9 +105,11 @@ function create() {
     player = game.add.sprite(PLAYER_STARTING_POSITION_X, PLAYER_STARTING_POSITION_Y, 'player');
     player.anchor.setTo(0.5, 0.5);
     player.events.onKilled.add(endGame);
+
     game.physics.enable(player, Phaser.Physics.ARCADE);
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
     player.body.maxVelocity.setTo(MAX_SPEED, MAX_SPEED);
     //player.body.drag.setTo(DRAG, DRAG);
     // Setting the player head. 
@@ -153,6 +155,7 @@ function create() {
 
     greenEnemies.forEach(function(enemy) {
         enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4);
+        enemy.events.onKilled.add(killEnemy);
     });
 
     launchGreenEnemy();
@@ -197,13 +200,11 @@ function update() {
 
 
     //  Check collisions
-    game.physics.arcade.overlap(playerHead, greenEnemies, playerCollide, null, this); //TODO: Player live is set to false => GAME OVER
+    game.physics.arcade.overlap(player, greenEnemies, playerCollide, null, this);
     game.physics.arcade.overlap(greenEnemies, bullets, hitEnemy, null, this);
     game.physics.arcade.overlap(barborder, greenEnemies, barCollide, null, this);
 
     function fireBullet() {
-
-
         //Variant I
         //  Grab the first bullet we can from the pool
 
@@ -233,7 +234,6 @@ function update() {
         if (game.time.now > bulletTimer) {
             var BULLET_SPEED = 400;
             var BULLET_SPACING = 450;
-            //  Grab the first bullet we can from the pool
             var bullet = bullets.getFirstExists(false);
 
             if (bullet) {
@@ -263,11 +263,11 @@ function update() {
         //player.body.acceleration.x = ACCLERATION;
         playerHead.body.velocity.x = MAX_SPEED;
     }
+
     //  Fire bullet
     if (player.alive && (fireButton.isDown || game.input.activePointer.isDown)) {
         fireBullet();
     }
-
 
     //  Stop at screen edges
     if (player.x > game.width - 50) {
@@ -280,64 +280,31 @@ function update() {
         playerHead.x = player.x - 3;
         //player.body.acceleration.x = 0;//with smootness of movement
     }
-
-    //  Collide b/n the glasses and the bar border.
-    //hasHitBarBorder = game.physics.arcade.collide(barborder, greenEnemies);
-    //console.log(hasHitBarBorder);
-
-
 }
 
 function render() {
 
 }
 
-function playerCollide(player, enemy) { //TODO: Player live is set to false => GAME OVER
-    var explosion = explosions.getFirstExists(false);
-    explosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
-    explosion.body.velocity.y = enemy.body.velocity.y;
-    explosion.alpha = 0.7;
-    explosion.play('explosion', EXPLOSION_SPEED, false, true);
-    enemy.kill();
-    //destroying the lives
+function playerCollide(player, enemy) {
     hearts.callAll('kill');
     player.kill();
 }
 
-function barCollide(bar, enemy) { //TODO: Player lives --
-    var explosion = explosions.getFirstExists(false);
-    explosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
-    explosion.body.velocity.y = enemy.body.velocity.y;
-    explosion.alpha = 0.7;
-    explosion.play('explosion', EXPLOSION_SPEED, false, true);
+function barCollide(bar, enemy) {
     enemy.kill();
-    //destroying lives one by one
-    //Option 1
-    hearts.children.forEach(function(heart, index) {
-        if (index === livesCount - 1) {
-            heart.kill();
-            livesCount -= 1;
-        }
-        if (livesCount <= 0) {
-            player.kill();
-        }
-    });
-    //Option 2 - throws when the array is empty, so for now use option 1
-    // hearts.children.pop().kill();
-    // if(livesCount <= 0){
-    //     //TODO: GAMEOVER
-    // }
+    hearts.children.pop().kill();
+
+    livesCount -= 1;
+    if (livesCount <= 0) {
+        player.kill();
+    }
 }
 
 function hitEnemy(enemy, bullet) {
-    var explosion = explosions.getFirstExists(false);
-    explosion.reset(bullet.body.x + bullet.body.halfWidth, bullet.body.y + bullet.body.halfHeight);
-    explosion.body.velocity.y = enemy.body.velocity.y;
-    explosion.alpha = 0.7;
-    explosion.play('explosion', EXPLOSION_SPEED, false, true);
     enemy.kill();
     bullet.kill();
-    //  Add and update the score
+
     score += 10;
     scoreText.text = 'Score: ' + score;
 }
@@ -356,4 +323,12 @@ function endGame() {
     greenEnemies.callAll('kill');
     playerHead.kill();
     game.time.events.remove(enemyLaunchTimer);
+}
+
+function killEnemy(enemy) {
+    var explosion = explosions.getFirstExists(false);
+    explosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
+    explosion.body.velocity.y = enemy.body.velocity.y;
+    explosion.alpha = 0.7;
+    explosion.play('explosion', EXPLOSION_SPEED, false, true);
 }
