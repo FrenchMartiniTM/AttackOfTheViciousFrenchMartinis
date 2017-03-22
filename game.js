@@ -7,6 +7,7 @@ const game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-demo', {
 
 var player,
     playerHead,
+    isAlive = true,
 
     bar,
     barborder,
@@ -127,7 +128,7 @@ function create() {
     explosions.createMultiple(30, 'explosion');
     explosions.setAll('anchor.x', 0.5);
     explosions.setAll('anchor.y', 0.5);
-    explosions.forEach(function(explosion) {
+    explosions.forEach(function (explosion) {
         explosion.animations.add('explosion');
     });
 
@@ -144,12 +145,15 @@ function create() {
     greenEnemies.setAll('outOfBoundsKill', true); //the object is killed when out of the boundaries
     greenEnemies.setAll('checkWorldBounds', true); // it checks every time if it's out of the bounds
 
-    greenEnemies.forEach(function(enemy) {
+    greenEnemies.forEach(function (enemy) {
         enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4);
         enemy.events.onKilled.add(killEnemy);
     });
 
     launchGreenEnemy();
+
+    pauseImage = game.add.sprite(250, 100, 'paused');
+    pauseImage.kill();
 }
 
 function update() {
@@ -294,19 +298,20 @@ function addHearts() {
 }
 
 function togglePause() {
-    if (!player.isAlive) {
+    if (!isAlive) {
         return;
     }
 
     game.physics.arcade.isPaused = (game.physics.arcade.isPaused) ? false : true;
     if (game.physics.arcade.isPaused) {
-        pauseImage = game.add.sprite(250, 100, 'paused');
+        pauseImage.revive();
     } else {
-        pauseImage.destroy();
+        pauseImage.kill();
     }
 }
 
 function endGame() {
+    isAlive = false;
     gameOverText.visible = true;
     playerHead.kill();
     greenEnemies.callAll('kill');
@@ -317,6 +322,7 @@ function endGame() {
 }
 
 function restart() {
+    isAlive = true;
     gameOverText.visible = false;
 
     launchGreenEnemy();
