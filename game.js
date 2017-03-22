@@ -5,7 +5,6 @@ const game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-demo', {
     render
 });
 
-
 var player,
     playerHead,
 
@@ -27,16 +26,17 @@ var player,
     pauseKey,
     pauseImage,
 
-    heart,
     hearts,
     livesCount = 3,
+
+    gameOverMessage = 'GAME OVER!',
     gameOverText;
 
 const PLAYER_STARTING_POSITION_X = 400,
-    PLAYER_STARTING_POSITION_Y = 500,
+    PLAYER_STARTING_POSITION_Y = 404,
 
-    PLAYER_HEAD_STARTING_POSITION_X = 395,
-    PLAYER_HEAD_STARTING_POSITION_Y = 455,
+    PLAYER_HEAD_STARTING_POSITION_X = 396,
+    PLAYER_HEAD_STARTING_POSITION_Y = 360,
 
     BAR_BORDER_POSITION_X = 0,
     BAR_BORDER_POSITION_Y = 470,
@@ -69,7 +69,7 @@ function create() {
     barborder.body.immovable = true;
     //barborder.alpha = 0; // uncomment if you want the red line to disappear
 
-    gameOverText = game.add.text(game.world.centerX, game.world.centerY, 'GAME OVER!', { font: '84px Arial', fill: '#fff' });
+    gameOverText = game.add.text(game.world.centerX, game.world.centerY, gameOverMessage, { font: '84px Arial', fill: '#fff' });
     gameOverText.anchor.setTo(0.5, 0.5);
     gameOverText.visible = false;
 
@@ -80,9 +80,7 @@ function create() {
 
     //Hearts group
     hearts = game.add.group();
-    for (var i = 0; i < livesCount; i += 1) {
-        heart = hearts.create(5 + i * 33, 560, 'heart');
-    }
+    addHearts();
 
     //  Our bullet group
     bullets = game.add.group();
@@ -151,22 +149,7 @@ function create() {
         enemy.events.onKilled.add(killEnemy);
     });
 
-    (function launchGreenEnemy() {
-        var MIN_ENEMY_SPACING = 1000 / FACTOR_DIFFICULTY, //TODO: can work with difficulty
-            MAX_ENEMY_SPACING = 3000 / FACTOR_DIFFICULTY, //TODO: can work with difficulty
-            ENEMY_SPEED = 100 * FACTOR_DIFFICULTY, //TODO: can work with difficulty
-            enemy = greenEnemies.getFirstExists(false);
-        if (enemy) {
-            enemy.reset(game.rnd.integerInRange(+100, game.width - 100), 0); //The Reset component allows a Game Object to be reset 
-            //and repositioned to a new location.
-            enemy.body.velocity.x = 0;
-            enemy.body.velocity.y = ENEMY_SPEED;
-            enemy.body.drag.x = 100;
-
-            //  Send another enemy soon
-            enemyLaunchTimer = game.time.events.add(game.rnd.integerInRange(MIN_ENEMY_SPACING, MAX_ENEMY_SPACING), launchGreenEnemy);
-        }
-    })();
+    launchGreenEnemy();
 }
 
 function update() {
@@ -188,7 +171,7 @@ function update() {
     //  Update function for each enemy player to update rotation etc
 
     //  Check collisions
-    game.physics.arcade.overlap(player, greenEnemies, playerCollide, null, this);
+    game.physics.arcade.overlap(playerHead, greenEnemies, playerCollide, null, this);
     game.physics.arcade.overlap(greenEnemies, bullets, hitEnemy, null, this);
     game.physics.arcade.overlap(barborder, greenEnemies, barCollide, null, this);
 
@@ -255,7 +238,7 @@ function render() {
 
 }
 
-function playerCollide(player, enemy) {
+function playerCollide(playerHead, enemy) {
     hearts.callAll('kill');
     player.kill();
 }
@@ -278,7 +261,43 @@ function hitEnemy(enemy, bullet) {
     scoreText.text = 'Score: ' + score;
 }
 
+function killEnemy(enemy) {
+    var explosion = explosions.getFirstExists(false);
+    explosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
+    explosion.body.velocity.y = enemy.body.velocity.y;
+    explosion.alpha = 0.7;
+    explosion.play('explosion', EXPLOSION_SPEED, false, true);
+}
+
+function launchGreenEnemy() {
+    var MIN_ENEMY_SPACING = 1000 / FACTOR_DIFFICULTY, //TODO: can work with difficulty
+        MAX_ENEMY_SPACING = 3000 / FACTOR_DIFFICULTY, //TODO: can work with difficulty
+        ENEMY_SPEED = 100 * FACTOR_DIFFICULTY, //TODO: can work with difficulty
+        enemy = greenEnemies.getFirstExists(false);
+
+    if (enemy) {
+        enemy.reset(game.rnd.integerInRange(+100, game.width - 100), 0); //The Reset component allows a Game Object to be reset 
+        //and repositioned to a new location.
+        enemy.body.velocity.x = 0;
+        enemy.body.velocity.y = ENEMY_SPEED;
+        enemy.body.drag.x = 100;
+
+        //  Send another enemy soon
+        enemyLaunchTimer = game.time.events.add(game.rnd.integerInRange(MIN_ENEMY_SPACING, MAX_ENEMY_SPACING), launchGreenEnemy);
+    }
+}
+
+function addHearts() {
+    for (var i = 0; i < livesCount; i += 1) {
+        hearts.create(5 + i * 33, 560, 'heart');
+    }
+}
+
 function togglePause() {
+    if (!player.isAlive) {
+        return;
+    }
+
     game.physics.arcade.isPaused = (game.physics.arcade.isPaused) ? false : true;
     if (game.physics.arcade.isPaused) {
         pauseImage = game.add.sprite(250, 100, 'paused');
@@ -289,15 +308,24 @@ function togglePause() {
 
 function endGame() {
     gameOverText.visible = true;
-    greenEnemies.callAll('kill');
     playerHead.kill();
+    greenEnemies.callAll('kill');
     game.time.events.remove(enemyLaunchTimer);
+
+    tapRestart = game.input.onTap.addOnce(restart, this);
+    spaceRestart = fireButton.onDown.addOnce(restart, this);
 }
 
-function killEnemy(enemy) {
-    var explosion = explosions.getFirstExists(false);
-    explosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
-    explosion.body.velocity.y = enemy.body.velocity.y;
-    explosion.alpha = 0.7;
-    explosion.play('explosion', EXPLOSION_SPEED, false, true);
+function restart() {
+    gameOverText.visible = false;
+
+    launchGreenEnemy();
+    player.revive();
+    playerHead.revive();
+
+    score = 0;
+    scoreText.text = 'Score: 0';
+
+    livesCount = 3;
+    addHearts();
 }
