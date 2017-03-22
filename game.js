@@ -5,12 +5,12 @@ const game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-demo', {
     render
 });
 
+
 var player,
     playerHead,
 
     bar,
     barborder,
-    hasHitBarBorder,
 
     cursors,
     score = 0,
@@ -30,9 +30,8 @@ var player,
     heart,
     hearts,
     livesCount = 3,
-    gameOver;
+    gameOverText;
 
-//Constants
 const PLAYER_STARTING_POSITION_X = 400,
     PLAYER_STARTING_POSITION_Y = 500,
 
@@ -45,7 +44,7 @@ const PLAYER_STARTING_POSITION_X = 400,
     ACCLERATION = 300,
     DRAG = 400,
     MAX_SPEED = 400,
-    EXPLOSION_SPEED = 5,
+    EXPLOSION_SPEED = 12,
     FACTOR_DIFFICULTY = 1; //TODO: Set with score or etc.    
 
 function preload() {
@@ -53,7 +52,7 @@ function preload() {
     game.load.image('player', 'assets/images/Bartender_80_88_invert.png');
     game.load.image('bullet', 'assets/images/green_olive_15_19.png');
     game.load.image('enemy-green', 'assets/images/glass_80_115_rotated.png');
-    game.load.spritesheet('explosion', 'assets/images/explode.png', 133, 95);
+    game.load.spritesheet('explosion', 'assets/images/explode.png', 133, 95, 6);
     game.load.image('barborder', './assets/images/barborder.png');
     game.load.image('playerhead', './assets/images/playerhead.png');
     game.load.image('paused', './assets/images/paused.png');
@@ -64,32 +63,27 @@ function create() {
     //Setting Arcade Physics system for all objects in the game
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    //  The scrolling bar background
     bar = game.add.tileSprite(0, 0, 800, 600, 'bar');
-
-    // Setting the bar border. 
     barborder = game.add.sprite(BAR_BORDER_POSITION_X, BAR_BORDER_POSITION_Y, 'barborder');
     game.physics.enable(barborder, Phaser.Physics.ARCADE);
     barborder.body.immovable = true;
     //barborder.alpha = 0; // uncomment if you want the red line to disappear
 
-    // Game over text
-    gameOver = game.add.text(game.world.centerX, game.world.centerY, 'GAME OVER!', { font: '84px Arial', fill: '#fff' });
-    gameOver.anchor.setTo(0.5, 0.5);
-    gameOver.visible = false;
+    gameOverText = game.add.text(game.world.centerX, game.world.centerY, 'GAME OVER!', { font: '84px Arial', fill: '#fff' });
+    gameOverText.anchor.setTo(0.5, 0.5);
+    gameOverText.visible = false;
 
-    //Setting score text
     scoreText = game.add.text(600, 550, 'score: 0', { fontSize: '32px', fill: '#F00' });
 
-    //Implementing the pause
     pauseKey = this.input.keyboard.addKey(Phaser.Keyboard.P);
     pauseKey.onDown.add(togglePause, this);
 
     //Hearts group
     hearts = game.add.group();
     for (var i = 0; i < livesCount; i += 1) {
-        heart = hearts.create(0 + i * 33, 560, 'heart');
+        heart = hearts.create(5 + i * 33, 560, 'heart');
     }
+
     //  Our bullet group
     bullets = game.add.group();
     bullets.enableBody = true;
@@ -99,7 +93,6 @@ function create() {
     bullets.setAll('anchor.y', 1);
     bullets.setAll('outOfBoundsKill', true);
     bullets.setAll('checkWorldBounds', true);
-
 
     //  The hero!
     player = game.add.sprite(PLAYER_STARTING_POSITION_X, PLAYER_STARTING_POSITION_Y, 'player');
@@ -112,11 +105,11 @@ function create() {
 
     player.body.maxVelocity.setTo(MAX_SPEED, MAX_SPEED);
     //player.body.drag.setTo(DRAG, DRAG);
+
     // Setting the player head. 
     playerHead = game.add.sprite(PLAYER_HEAD_STARTING_POSITION_X, PLAYER_HEAD_STARTING_POSITION_Y, 'playerhead');
     game.physics.enable(playerHead, Phaser.Physics.ARCADE);
     //playerHead.alpha = 0; // uncomment if you want the red line to disappear
-
 
     /*//  Add an emitter for the player's trail
      playerTrail = game.add.emitter(player.x, player.y + 10, 400);
@@ -129,7 +122,6 @@ function create() {
      playerTrail.setScale(0.05, 0.4, 0.05, 0.4, 2000, Phaser.Easing.Quintic.Out);
      playerTrail.start(false, 5000, 10);*/
 
-
     //  An explosion pool
     explosions = game.add.group();
     explosions.enableBody = true;
@@ -140,6 +132,7 @@ function create() {
     explosions.forEach(function(explosion) {
         explosion.animations.add('explosion');
     });
+
     //  The baddies!
     greenEnemies = game.add.group();
     greenEnemies.enableBody = true;
@@ -158,35 +151,31 @@ function create() {
         enemy.events.onKilled.add(killEnemy);
     });
 
-    launchGreenEnemy();
-
-    function launchGreenEnemy() {
-        //*/moved to main variables for modification of difficulty by score or other
-        var MIN_ENEMY_SPACING = 1000 / FACTOR_DIFFICULTY; //TODO: can work with difficulty
-        var MAX_ENEMY_SPACING = 3000 / FACTOR_DIFFICULTY; //TODO: can work with difficulty
-        var ENEMY_SPEED = 100 * FACTOR_DIFFICULTY; //TODO: can work with difficulty
-        var enemy = greenEnemies.getFirstExists(false);
+    (function launchGreenEnemy() {
+        var MIN_ENEMY_SPACING = 1000 / FACTOR_DIFFICULTY, //TODO: can work with difficulty
+            MAX_ENEMY_SPACING = 3000 / FACTOR_DIFFICULTY, //TODO: can work with difficulty
+            ENEMY_SPEED = 100 * FACTOR_DIFFICULTY, //TODO: can work with difficulty
+            enemy = greenEnemies.getFirstExists(false);
         if (enemy) {
             enemy.reset(game.rnd.integerInRange(+100, game.width - 100), 0); //The Reset component allows a Game Object to be reset 
             //and repositioned to a new location.
-            enemy.body.velocity.x = game.rnd.integerInRange(0, 0);
+            enemy.body.velocity.x = 0;
             enemy.body.velocity.y = ENEMY_SPEED;
             enemy.body.drag.x = 100;
 
             //  Send another enemy soon
             enemyLaunchTimer = game.time.events.add(game.rnd.integerInRange(MIN_ENEMY_SPACING, MAX_ENEMY_SPACING), launchGreenEnemy);
         }
-    };
+    })();
 }
 
 function update() {
-    //  Scroll the background
-    bar.tilePosition.y = 2; //ours is stationary
     //  Reset the player, then check for movement keys
     player.body.velocity.setTo(0, 0);
     //player.body.acceleration.x = 0;
     playerHead.body.velocity.setTo(0, 0);
-    playerHead.body.acceleration.x = 0;
+    //playerHead.body.acceleration.x = 0;
+
     /*//  Move player towards MOUSE pointer
      if (game.input.x < game.width - 1 &&
      game.input.x > 1 &&
@@ -198,7 +187,6 @@ function update() {
      }*/
     //  Update function for each enemy player to update rotation etc
 
-
     //  Check collisions
     game.physics.arcade.overlap(player, greenEnemies, playerCollide, null, this);
     game.physics.arcade.overlap(greenEnemies, bullets, hitEnemy, null, this);
@@ -207,20 +195,12 @@ function update() {
     function fireBullet() {
         //Variant I
         //  Grab the first bullet we can from the pool
-
-
         /*var bullet = bullets.getFirstExists(false);
 
          if (bullet) {
-
-
-         /!*!//  And fire it
-         bullet.reset(player.x, player.y + 0);//position
-         bullet.body.velocity.y = -250;*!/
-
-         //  And fire it
-         bullet.reset(player.x, player.y + 0);
-         bullet.body.velocity.y = -400;
+         bullet.reset(player.x, player.y); //The Reset component allows a Game Object to be reset and repositioned to a new location.
+         bullet.body.velocity.y = -500;
+         
          //  Make bullet come out of tip of player with right angle
          var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
          bullet.reset(player.x + bulletOffset, player.y);
@@ -228,26 +208,16 @@ function update() {
          game.physics.arcade.velocityFromAngle(bullet.angle - 90, BULLET_SPEED, bullet.body.velocity);
          bullet.body.velocity.x += player.body.velocity.x;*/
 
-
         //Variant II
         //  To avoid them being allowed to fire too fast we set a time limit
         if (game.time.now > bulletTimer) {
-            var BULLET_SPEED = 400;
-            var BULLET_SPACING = 450;
-            var bullet = bullets.getFirstExists(false);
+            var BULLET_SPEED = 400,
+                BULLET_SPACING = 450,
+                bullet = bullets.getFirstExists(false);
 
             if (bullet) {
-                //  And fire it
-                //  Make bullet come out of tip of player with right angle
                 bullet.reset(player.x, player.y); //The Reset component allows a Game Object to be reset and repositioned to a new location.
                 bullet.body.velocity.y = -500;
-
-                //Create offset if object under angle
-                /*var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
-                 bullet.reset(player.x + bulletOffset, player.y);
-                 bullet.angle = player.angle;
-                 game.physics.arcade.velocityFromAngle(bullet.angle - 90, BULLET_SPEED, bullet.body.velocity);
-                 bullet.body.velocity.x += player.body.velocity.x;*/
 
                 bulletTimer = game.time.now + BULLET_SPACING;
             }
@@ -264,7 +234,6 @@ function update() {
         playerHead.body.velocity.x = MAX_SPEED;
     }
 
-    //  Fire bullet
     if (player.alive && (fireButton.isDown || game.input.activePointer.isDown)) {
         fireBullet();
     }
@@ -319,7 +288,7 @@ function togglePause() {
 }
 
 function endGame() {
-    gameOver.visible = true;
+    gameOverText.visible = true;
     greenEnemies.callAll('kill');
     playerHead.kill();
     game.time.events.remove(enemyLaunchTimer);
