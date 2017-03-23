@@ -35,7 +35,7 @@ var player,
 
 const ACCLERATION = 300, // Not in use
     DRAG = 400; // Not in use
-    
+
 
 function preload() {
     game.load.image('bar', 'assets/images/bar.png');
@@ -50,6 +50,11 @@ function preload() {
 }
 
 function create() {
+    //Alligning the game to the center of the window
+    game.scale.pageAlignHorizontally = true;
+    game.scale.pageAlignVertically = true;
+    game.stage.forcePortrait = true;
+    
     //Setting Arcade Physics system for all objects in the game
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -310,11 +315,11 @@ function endGame() {
 
 function restart() {
     isAlive = true;
-    gameOverText.kill(); 
+    gameOverText.kill();
     launchGreenEnemy();
-    player.reset(PLAYER_STARTING_POSITION_X,PLAYER_STARTING_POSITION_Y); 
-    playerHead.reset(PLAYER_HEAD_STARTING_POSITION_X,PLAYER_HEAD_STARTING_POSITION_Y);
-    
+    player.reset(PLAYER.STARTING_POSITION_X, PLAYER.STARTING_POSITION_Y);
+    playerHead.reset(PLAYER.HEAD.STARTING_POSITION_X, PLAYER.HEAD.STARTING_POSITION_Y);
+
     score = 0;
     scoreText.text = 'Score: 0';
 
