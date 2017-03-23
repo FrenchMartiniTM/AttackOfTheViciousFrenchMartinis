@@ -33,20 +33,9 @@ var player,
     gameOverMessage = 'GAME OVER!',
     gameOverText;
 
-const PLAYER_STARTING_POSITION_X = 400,
-    PLAYER_STARTING_POSITION_Y = 404,
-
-    PLAYER_HEAD_STARTING_POSITION_X = 396,
-    PLAYER_HEAD_STARTING_POSITION_Y = 360,
-
-    BAR_BORDER_POSITION_X = 0,
-    BAR_BORDER_POSITION_Y = 470,
-
-    ACCLERATION = 300,
-    DRAG = 400,
-    MAX_SPEED = 400,
-    EXPLOSION_SPEED = 12,
-    FACTOR_DIFFICULTY = 1; //TODO: Set with score or etc.    
+const ACCLERATION = 300, // Not in use
+    DRAG = 400; // Not in use
+    
 
 function preload() {
     game.load.image('bar', 'assets/images/bar.png');
@@ -65,7 +54,7 @@ function create() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     bar = game.add.tileSprite(0, 0, 800, 600, 'bar');
-    barborder = game.add.sprite(BAR_BORDER_POSITION_X, BAR_BORDER_POSITION_Y, 'barborder');
+    barborder = game.add.sprite(BAR.BORDER_POSITION_X, BAR.BORDER_POSITION_Y, 'barborder');
     game.physics.enable(barborder, Phaser.Physics.ARCADE);
     barborder.body.immovable = true;
     //barborder.alpha = 0; // uncomment if you want the red line to disappear
@@ -94,7 +83,7 @@ function create() {
     bullets.setAll('checkWorldBounds', true);
 
     //  The hero!
-    player = game.add.sprite(PLAYER_STARTING_POSITION_X, PLAYER_STARTING_POSITION_Y, 'player');
+    player = game.add.sprite(PLAYER.STARTING_POSITION_X, PLAYER.STARTING_POSITION_Y, 'player');
     player.anchor.setTo(0.5, 0.5);
     player.events.onKilled.add(endGame);
 
@@ -102,11 +91,11 @@ function create() {
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
-    player.body.maxVelocity.setTo(MAX_SPEED, MAX_SPEED);
+    player.body.maxVelocity.setTo(PLAYER.MAX_SPEED, PLAYER.MAX_SPEED);
     //player.body.drag.setTo(DRAG, DRAG);
 
     // Setting the player head. 
-    playerHead = game.add.sprite(PLAYER_HEAD_STARTING_POSITION_X, PLAYER_HEAD_STARTING_POSITION_Y, 'playerhead');
+    playerHead = game.add.sprite(PLAYER.HEAD.STARTING_POSITION_X, PLAYER.HEAD.STARTING_POSITION_Y, 'playerhead');
     game.physics.enable(playerHead, Phaser.Physics.ARCADE);
     //playerHead.alpha = 0; // uncomment if you want the red line to disappear
 
@@ -136,7 +125,7 @@ function create() {
     greenEnemies = game.add.group();
     greenEnemies.enableBody = true;
     greenEnemies.physicsBodyType = Phaser.Physics.ARCADE;
-    greenEnemies.createMultiple(5 * FACTOR_DIFFICULTY, 'enemy-green'); //TODO: can add factor to number of enemies in dependence to difficutly level
+    greenEnemies.createMultiple(5 * GLASS.FACTOR_DIFFICULTY, 'enemy-green'); //TODO: can add factor to number of enemies in dependence to difficutly level
     greenEnemies.setAll('anchor.x', 0.5); //places the anchor in the exact middle of the sprite, horizontally and vertically.
     greenEnemies.setAll('anchor.y', 0.5); //places the anchor in the exact middle of the sprite, horizontally and vertically.
     greenEnemies.setAll('scale.x', 0.5);
@@ -170,7 +159,7 @@ function update() {
      game.input.y < game.height - 1) {
      var minDist = 100;
      var dist = game.input.x - player.x;
-     player.body.velocity.x = MAX_SPEED * game.math.clamp(dist / minDist, -1, 1);
+     player.body.velocity.x = PLAYER.MAX_SPEED * game.math.clamp(dist / minDist, -1, 1);
      }*/
     //  Update function for each enemy player to update rotation etc
 
@@ -192,33 +181,31 @@ function update() {
          var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
          bullet.reset(player.x + bulletOffset, player.y);
          bullet.angle = player.angle;
-         game.physics.arcade.velocityFromAngle(bullet.angle - 90, BULLET_SPEED, bullet.body.velocity);
+         game.physics.arcade.velocityFromAngle(bullet.angle - 90, BULLET.SPEED, bullet.body.velocity);
          bullet.body.velocity.x += player.body.velocity.x;*/
 
         //Variant II
         //  To avoid them being allowed to fire too fast we set a time limit
         if (game.time.now > bulletTimer) {
-            var BULLET_SPEED = 400,
-                BULLET_SPACING = 450,
-                bullet = bullets.getFirstExists(false);
+            var bullet = bullets.getFirstExists(false);
 
             if (bullet) {
                 bullet.reset(player.x, player.y); //The Reset component allows a Game Object to be reset and repositioned to a new location.
                 bullet.body.velocity.y = -500;
 
-                bulletTimer = game.time.now + BULLET_SPACING;
+                bulletTimer = game.time.now + BULLET.SPACING;
             }
         }
     }
 
     if (cursors.left.isDown) {
-        player.body.velocity.x = -MAX_SPEED; //without smootness of movement
+        player.body.velocity.x = -PLAYER.MAX_SPEED; //without smootness of movement
         //player.body.acceleration.x = -ACCLERATION; //with up
-        playerHead.body.velocity.x = -MAX_SPEED;
+        playerHead.body.velocity.x = -PLAYER.MAX_SPEED;
     } else if (cursors.right.isDown) {
-        player.body.velocity.x = MAX_SPEED; //without smootness of movement
+        player.body.velocity.x = PLAYER.MAX_SPEED; //without smootness of movement
         //player.body.acceleration.x = ACCLERATION;
-        playerHead.body.velocity.x = MAX_SPEED;
+        playerHead.body.velocity.x = PLAYER.MAX_SPEED;
     }
 
     if (player.alive && (fireButton.isDown || game.input.activePointer.isDown)) {
@@ -270,13 +257,13 @@ function killEnemy(enemy) {
     explosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
     explosion.body.velocity.y = enemy.body.velocity.y;
     explosion.alpha = 0.7;
-    explosion.play('explosion', EXPLOSION_SPEED, false, true);
+    explosion.play('explosion', EXPLOSION.SPEED, false, true);
 }
 
 function launchGreenEnemy() {
-    var MIN_ENEMY_SPACING = 1000 / FACTOR_DIFFICULTY, //TODO: can work with difficulty
-        MAX_ENEMY_SPACING = 3000 / FACTOR_DIFFICULTY, //TODO: can work with difficulty
-        ENEMY_SPEED = 100 * FACTOR_DIFFICULTY, //TODO: can work with difficulty
+    var MIN_ENEMY_SPACING = 1000 / GLASS.FACTOR_DIFFICULTY, //TODO: can work with difficulty
+        MAX_ENEMY_SPACING = 3000 / GLASS.FACTOR_DIFFICULTY, //TODO: can work with difficulty
+        ENEMY_SPEED = 100 * GLASS.FACTOR_DIFFICULTY, //TODO: can work with difficulty
         enemy = greenEnemies.getFirstExists(false);
 
     if (enemy) {
