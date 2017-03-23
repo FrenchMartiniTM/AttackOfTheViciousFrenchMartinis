@@ -177,7 +177,7 @@ class MainMenu {
             
             closeButtonLabel.innerHTML = buttonText;
 
-            const button = SvgUtils.createSVG("rect", {"class": "button",
+            const button = SvgUtils.createSVG("rect", {"class": "button-close",
                     "width": buttonWidth,
                     "height": buttonHight,
                     "id": "close",
@@ -201,18 +201,10 @@ class MainMenu {
             svg.appendChild(button);
         }
         else if (targetId == "quit") {
-
+			document.getElementById("top").innerHTML = "";
+			delete(this);
         }
     }
-
-    startGame() {
-        console.log("ok");
-    }
-
-    quitGame() {
-        console.log("ok");
-    }
-
 }
 
 let mainMenu = new MainMenu();

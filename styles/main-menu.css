@@ -11,6 +11,12 @@ svg{
   stroke-width: 1px;
 }
 
+.info-panel {
+  fill: #333;
+  stroke-width: 6px;
+  stroke: #686868;
+}
+
 .button {
   fill: transparent;
   stroke-dasharray: 140 540;
@@ -19,10 +25,12 @@ svg{
   stroke: #00ffff;
 }
 
-.info-panel {
-  fill: #333;
+.button-close {
+  fill: transparent;
+  stroke-dasharray: 140 540;
+  stroke-dashoffset: 430;
   stroke-width: 6px;
-  stroke: #686868;
+  stroke: #00ffff;
 }
 
 @keyframes draw {
@@ -38,7 +46,7 @@ svg{
   }
 }
 
-.button:hover   {
+.button:hover, .button-close:hover   {
   -webkit-animation: 0.5s draw linear forwards;
   animation: 0.5s draw linear forwards;
 }
