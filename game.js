@@ -34,7 +34,9 @@ var player,
     gameOverText,
 
     fullScreenButton,
-    fullScreenKey;
+    fullScreenKey,
+
+    highscores = [0, 0, 0, 0, 0];
 
 const ACCLERATION = 300, // Not in use
     DRAG = 400; // Not in use
@@ -155,7 +157,7 @@ function create() {
     game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
     fullScreenButton = game.add.button(game.width - 32, 0, 'fullscreen', toggleFullScreen, this, null, null, null);
     fullScreenKey = this.input.keyboard.addKey(Phaser.Keyboard.F);
-    fullScreenKey.onDown.add(toggleFullScreen, this);f
+    fullScreenKey.onDown.add(toggleFullScreen, this);
 }
 
 function update() {
@@ -328,20 +330,27 @@ function restart() {
     player.reset(PLAYER.STARTING_POSITION_X, PLAYER.STARTING_POSITION_Y);
     playerHead.reset(PLAYER.HEAD.STARTING_POSITION_X, PLAYER.HEAD.STARTING_POSITION_Y);
 
-    score = 0;
-    scoreText.text = 'Score: 0';
-
-    livesCount = 3;
-    addHearts();
+    addHighscore();
+    resetStartingGameStats();
 }
 
 function toggleFullScreen() {
-
     if (game.scale.isFullScreen) {
         game.scale.stopFullScreen();
     }
     else {
         game.scale.startFullScreen(true);
     }
-
+}
+function resetStartingGameStats() {
+    score = 0;
+    scoreText.text = 'Score: 0';
+    livesCount = 3;
+    addHearts();
+}
+function addHighscore() {
+    if (highscores.some(highscore => highscore < score)) {
+        highscores[highscores.length - 1] = score;
+        highscores.sort((a, b) => b - a);
+    }
 }
