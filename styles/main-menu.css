@@ -14,7 +14,7 @@ svg{
 .button {
   fill: transparent;
   stroke-dasharray: 140 540;
-  stroke-dashoffset: -474;
+  stroke-dashoffset: 360;
   stroke-width: 6px;
   stroke: #00ffff;
 }
@@ -28,7 +28,7 @@ svg{
 @keyframes draw {
   0% {
     stroke-dasharray: 140 540;
-    stroke-dashoffset: -474;
+    stroke-dashoffset: 360;
     stroke-width: 6px;
   }
   100% {

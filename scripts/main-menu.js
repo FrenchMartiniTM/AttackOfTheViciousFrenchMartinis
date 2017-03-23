@@ -79,7 +79,7 @@ class MainMenu {
         }
 
         for (let i = 0; i <= 9; i += 1) {
-            const backgroundGlass = SvgUtils.createSVG("image", { "y": -200 });
+            const backgroundGlass = SvgUtils.createSVG("image", { "y": -200, "style": "pointer-events: none;" });
             
             if ((i % 3) === 0) {
                 backgroundGlass.setAttribute("transform", "rotate(45)");
