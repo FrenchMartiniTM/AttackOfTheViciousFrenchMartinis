@@ -21,7 +21,7 @@ svg{
   fill: transparent;
   stroke-dasharray: 140 540;
   stroke-dashoffset: 360;
-  stroke-width: 6px;
+  stroke-width: 4px;
   stroke: #00ffff;
 }
 
@@ -29,7 +29,7 @@ svg{
   fill: transparent;
   stroke-dasharray: 140 540;
   stroke-dashoffset: 430;
-  stroke-width: 6px;
+  stroke-width: 4px;
   stroke: #00ffff;
 }
 
@@ -37,7 +37,7 @@ svg{
   0% {
     stroke-dasharray: 140 540;
     stroke-dashoffset: 360;
-    stroke-width: 6px;
+    stroke-width: 4px;
   }
   100% {
     stroke-dasharray: 760;

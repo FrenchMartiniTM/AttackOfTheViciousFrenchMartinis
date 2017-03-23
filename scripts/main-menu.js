@@ -43,6 +43,8 @@ class MainMenu {
         document.body.appendChild(top);
 
         const logo = SvgUtils.createSVG("image", { "id": "logo",
+				"width": 756,
+				"height": 152,
                 "x": "22",
                 "y": "50",
         });
@@ -78,8 +80,12 @@ class MainMenu {
             svg.appendChild(button);
         }
 
-        for (let i = 0; i <= 9; i += 1) {
-            const backgroundGlass = SvgUtils.createSVG("image", { "y": -200, "style": "pointer-events: none;" });
+        for (let i = 1; i <= 10; i += 1) {
+            const backgroundGlass = SvgUtils.createSVG("image", { "y": -200,
+					"style": "pointer-events: none;",
+					"width": "80",
+					"height": "115"
+			});
             
             if ((i % 3) === 0) {
                 backgroundGlass.setAttribute("transform", "rotate(45)");
@@ -89,8 +95,8 @@ class MainMenu {
                 backgroundGlass.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/glass_80_115.png");
                 backgroundGlass.setAttribute("x", "-200");
                 const animateX = SvgUtils.createSVG("animate", { "attributeName": "x",
-                        "from": -200,
-                        "to": 1000,
+                        "from": -20 * i,
+                        "to": 800 + (20 * i),
                         "dur": (i % 5) + 5 + "s",
                         "attributeType": "CSS",
                         "repeatCount": "indefinite",
@@ -102,8 +108,8 @@ class MainMenu {
                 backgroundGlass.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/glass_80_115_rotated.png");
                 backgroundGlass.setAttribute("x", "1000");
                 const animateX = SvgUtils.createSVG("animate", { "attributeName": "x",
-                        "from": 1000,
-                        "to": -200,
+                        "from": 800 + (20 * i),
+                        "to": -20 * i,
                         "dur": (i % 6) + "s",
                         "attributeType": "CSS",
                         "repeatCount": "indefinite",
@@ -202,6 +208,7 @@ class MainMenu {
         }
         else if (targetId == "quit") {
 			document.getElementById("top").innerHTML = "";
+			document.getElementById("top").outerHTML = "";
 			delete(this);
         }
     }
