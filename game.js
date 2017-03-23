@@ -1,4 +1,4 @@
-const game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-demo', {
+const game = new Phaser.Game(800, 600, Phaser.CANVAS, 'gameContainer', {
     preload,
     create,
     update,
@@ -61,7 +61,7 @@ function create() {
 
     gameOverText = game.add.text(game.world.centerX, game.world.centerY, gameOverMessage, { font: '84px Arial', fill: '#fff' });
     gameOverText.anchor.setTo(0.5, 0.5);
-    gameOverText.visible = false;
+    gameOverText.kill();
 
     scoreText = game.add.text(600, 550, 'score: 0', { fontSize: '32px', fill: '#F00' });
 
@@ -299,23 +299,22 @@ function togglePause() {
 
 function endGame() {
     isAlive = false;
-    gameOverText.visible = true;
+    hearts.children = [];
+    gameOverText.revive();
     playerHead.kill();
     greenEnemies.callAll('kill');
     game.time.events.remove(enemyLaunchTimer);
 
-    tapRestart = game.input.onTap.addOnce(restart, this);
     spaceRestart = fireButton.onDown.addOnce(restart, this);
 }
 
 function restart() {
     isAlive = true;
-    gameOverText.visible = false;
-
+    gameOverText.kill(); 
     launchGreenEnemy();
-    player.revive();
-    playerHead.revive();
-
+    player.reset(PLAYER_STARTING_POSITION_X,PLAYER_STARTING_POSITION_Y); 
+    playerHead.reset(PLAYER_HEAD_STARTING_POSITION_X,PLAYER_HEAD_STARTING_POSITION_Y);
+    
     score = 0;
     scoreText.text = 'Score: 0';
 
