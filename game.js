@@ -31,7 +31,10 @@ var player,
     livesCount = 3,
 
     gameOverMessage = 'GAME OVER!',
-    gameOverText;
+    gameOverText,
+
+    fullScreenButton,
+    fullScreenKey;
 
 const ACCLERATION = 300, // Not in use
     DRAG = 400; // Not in use
@@ -47,6 +50,7 @@ function preload() {
     game.load.image('playerhead', './assets/images/playerhead.png');
     game.load.image('paused', './assets/images/paused.png');
     game.load.image('heart', './assets/images/heart.png');
+    game.load.image('fullscreen', './assets/images/fullscreen.png')
 }
 
 function create() {
@@ -54,7 +58,7 @@ function create() {
     game.scale.pageAlignHorizontally = true;
     game.scale.pageAlignVertically = true;
     game.stage.forcePortrait = true;
-    
+
     //Setting Arcade Physics system for all objects in the game
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -69,9 +73,6 @@ function create() {
     gameOverText.kill();
 
     scoreText = game.add.text(600, 550, 'score: 0', { fontSize: '32px', fill: '#F00' });
-
-    pauseKey = this.input.keyboard.addKey(Phaser.Keyboard.P);
-    pauseKey.onDown.add(togglePause, this);
 
     //Hearts group
     hearts = game.add.group();
@@ -146,8 +147,15 @@ function create() {
 
     launchGreenEnemy();
 
+    pauseKey = this.input.keyboard.addKey(Phaser.Keyboard.P);
+    pauseKey.onDown.add(togglePause, this);
     pauseImage = game.add.sprite(250, 100, 'paused');
     pauseImage.kill();
+
+    game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
+    fullScreenButton = game.add.button(game.width - 32, 0, 'fullscreen', toggleFullScreen, this, null, null, null);
+    fullScreenKey = this.input.keyboard.addKey(Phaser.Keyboard.F);
+    fullScreenKey.onDown.add(toggleFullScreen, this);f
 }
 
 function update() {
@@ -325,4 +333,15 @@ function restart() {
 
     livesCount = 3;
     addHearts();
+}
+
+function toggleFullScreen() {
+
+    if (game.scale.isFullScreen) {
+        game.scale.stopFullScreen();
+    }
+    else {
+        game.scale.startFullScreen(true);
+    }
+
 }
