@@ -325,8 +325,8 @@ function restart() {
     isAlive = true;
     gameOverText.kill(); 
     launchGreenEnemy();
-    player.revive(); 
-    playerHead.revive();
+    player.reset(PLAYER_STARTING_POSITION_X,PLAYER_STARTING_POSITION_Y); 
+    playerHead.reset(PLAYER_HEAD_STARTING_POSITION_X,PLAYER_HEAD_STARTING_POSITION_Y);
     
     score = 0;
     scoreText.text = 'Score: 0';
