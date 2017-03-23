@@ -1,4 +1,4 @@
-const game = new Phaser.Game(800, 600, Phaser.CANVAS, 'phaser-demo', {
+const game = new Phaser.Game(800, 600, Phaser.CANVAS, 'gameContainer', {
     preload,
     create,
     update,
