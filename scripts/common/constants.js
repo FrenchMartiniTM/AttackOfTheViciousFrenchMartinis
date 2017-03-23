@@ -1,0 +1,29 @@
+const PLAYER = {
+  STARTING_POSITION_X: 400,
+  STARTING_POSITION_Y: 404,
+
+  MAX_SPEED: 400,
+
+  HEAD: {
+    STARTING_POSITION_X: 396,
+    STARTING_POSITION_Y: 360
+  }
+};
+
+const BAR = {
+  BORDER_POSITION_X: 0,
+  BORDER_POSITION_Y: 470,
+};
+
+const GLASS = {
+  FACTOR_DIFFICULTY: 1 //TODO: Set with score or etc.    
+};
+
+const BULLET = {
+  SPEED: 400,
+  SPACING: 450
+};
+
+const EXPLOSION = {
+  SPEED: 12
+};
