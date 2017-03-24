@@ -1,5 +1,5 @@
-function startGame() {
-    //removeMenu(); swiched off to test difficulty level
+//function startGame() {//swiched off to test difficulty level
+    //removeMenu(); //swiched off to test difficulty level
 
     const game = new Phaser.Game(800, 600, Phaser.CANVAS, 'gameContainer', {
         preload,
@@ -18,7 +18,6 @@ function startGame() {
         cursors,
         score = 0,
         scoreText,
-        totalScore = 0,
         factorDifficulty = 1,
 
         bullets,
@@ -270,7 +269,6 @@ function startGame() {
 
         score += 10;
         scoreText.text = 'Score: ' + score;
-        totalScore +=10;
         setDifficultyLevel();
     }
 
@@ -351,7 +349,6 @@ function startGame() {
     }
     function resetStartingGameStats() {
         score = 0;
-        totalScore = 0;
         scoreText.text = 'Score: 0';
         livesCount = 3;
         addHearts();
@@ -362,24 +359,24 @@ function startGame() {
             highscores.sort((a, b) => b - a);
         }
     }
-    function removeMenu(){
-        document.getElementById("svgCon").style.display = 'none';
-    }
+   // function removeMenu(){//swiched off to test difficulty level
+    //    document.getElementById("svgCon").style.display = 'none';
+   // }
     function setDifficultyLevel () {
-    if (totalScore <= 50) {
+    if (score <= 50) {
         factorDifficulty = 1;
-    }else if (totalScore >50 && totalScore <=100) {
+    }else if (score >50 && score <=100) {
         factorDifficulty = 1.2;
-    }else if (totalScore >100 && totalScore <=200) {
+    }else if (score >100 && score <=200) {
         factorDifficulty = 1.4;
-    }else if (totalScore >200 && totalScore <=300) {
+    }else if (score >200 && score <=300) {
         factorDifficulty = 1.7;
-    }else if (totalScore >300 && totalScore <=400) {
+    }else if (score >300 && score <=400) {
         factorDifficulty = 2;
-    }else if (totalScore >400 && totalScore <=500) {
+    }else if (score >400 && score <=500) {
         factorDifficulty = 2.5;
     }else{
         factorDifficulty = 3;
     }
-}
+//}
 }
