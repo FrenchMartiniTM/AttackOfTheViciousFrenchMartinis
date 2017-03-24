@@ -1,5 +1,5 @@
 function startGame() {
-    removeMenu();
+    //removeMenu(); swiched off to test difficulty level
 
     const game = new Phaser.Game(800, 600, Phaser.CANVAS, 'gameContainer', {
         preload,
@@ -18,6 +18,8 @@ function startGame() {
         cursors,
         score = 0,
         scoreText,
+        totalScore = 0,
+        factorDifficulty = 1,
 
         bullets,
         bulletTimer = 0,
@@ -136,7 +138,7 @@ function startGame() {
         greenEnemies = game.add.group();
         greenEnemies.enableBody = true;
         greenEnemies.physicsBodyType = Phaser.Physics.ARCADE;
-        greenEnemies.createMultiple(5 * GLASS.FACTOR_DIFFICULTY, 'enemy-green'); //TODO: can add factor to number of enemies in dependence to difficutly level
+        greenEnemies.createMultiple(5 * factorDifficulty, 'enemy-green'); //TODO: can add factor to number of enemies in dependence to difficutly level
         greenEnemies.setAll('anchor.x', 0.5); //places the anchor in the exact middle of the sprite, horizontally and vertically.
         greenEnemies.setAll('anchor.y', 0.5); //places the anchor in the exact middle of the sprite, horizontally and vertically.
         greenEnemies.setAll('scale.x', 0.5);
@@ -209,9 +211,9 @@ function startGame() {
 
                 if (bullet) {
                     bullet.reset(player.x, player.y); //The Reset component allows a Game Object to be reset and repositioned to a new location.
-                    bullet.body.velocity.y = -500;
+                    bullet.body.velocity.y = -BULLET.SPEED * factorDifficulty;
 
-                    bulletTimer = game.time.now + BULLET.SPACING;
+                    bulletTimer = game.time.now + (BULLET.SPACING/factorDifficulty);
                 }
             }
         }
@@ -268,6 +270,8 @@ function startGame() {
 
         score += 10;
         scoreText.text = 'Score: ' + score;
+        totalScore +=10;
+        setDifficultyLevel();
     }
 
     function killEnemy(enemy) {
@@ -279,9 +283,9 @@ function startGame() {
     }
 
     function launchGreenEnemy() {
-        var MIN_ENEMY_SPACING = 1000 / GLASS.FACTOR_DIFFICULTY, //TODO: can work with difficulty
-            MAX_ENEMY_SPACING = 3000 / GLASS.FACTOR_DIFFICULTY, //TODO: can work with difficulty
-            ENEMY_SPEED = 100 * GLASS.FACTOR_DIFFICULTY, //TODO: can work with difficulty
+        var MIN_ENEMY_SPACING = 1000 / factorDifficulty, //TODO: can work with difficulty
+            MAX_ENEMY_SPACING = 3000 / factorDifficulty, //TODO: can work with difficulty
+            ENEMY_SPEED = 100 * factorDifficulty, //TODO: can work with difficulty
             enemy = greenEnemies.getFirstExists(false);
 
         if (enemy) {
@@ -347,6 +351,7 @@ function startGame() {
     }
     function resetStartingGameStats() {
         score = 0;
+        totalScore = 0;
         scoreText.text = 'Score: 0';
         livesCount = 3;
         addHearts();
@@ -360,4 +365,21 @@ function startGame() {
     function removeMenu(){
         document.getElementById("svgCon").style.display = 'none';
     }
+    function setDifficultyLevel () {
+    if (totalScore <= 50) {
+        factorDifficulty = 1;
+    }else if (totalScore >50 && totalScore <=100) {
+        factorDifficulty = 1.2;
+    }else if (totalScore >100 && totalScore <=200) {
+        factorDifficulty = 1.4;
+    }else if (totalScore >200 && totalScore <=300) {
+        factorDifficulty = 1.7;
+    }else if (totalScore >300 && totalScore <=400) {
+        factorDifficulty = 2;
+    }else if (totalScore >400 && totalScore <=500) {
+        factorDifficulty = 2.5;
+    }else{
+        factorDifficulty = 3;
+    }
+}
 }
