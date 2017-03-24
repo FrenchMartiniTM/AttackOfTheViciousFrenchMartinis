@@ -15,10 +15,6 @@ const BAR = {
   BORDER_POSITION_Y: 470,
 };
 
-const GLASS = {
-  FACTOR_DIFFICULTY: 1 //TODO: Set with score or etc.    
-};
-
 const BULLET = {
   SPEED: 400,
   SPACING: 450
