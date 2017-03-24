@@ -318,6 +318,7 @@
     }
 
     function endGame() {
+        addHighscore();
         isAlive = false;
         hearts.children = [];
         gameOverText.revive();
@@ -330,13 +331,13 @@
 
     function restart() {
         isAlive = true;
+        factorDifficulty = 1;
         gameOverText.kill();
-        launchGreenEnemy();
         player.reset(PLAYER.STARTING_POSITION_X, PLAYER.STARTING_POSITION_Y);
         playerHead.reset(PLAYER.HEAD.STARTING_POSITION_X, PLAYER.HEAD.STARTING_POSITION_Y);
 
-        addHighscore();
         resetStartingGameStats();
+        launchGreenEnemy();
     }
 
     function toggleFullScreen() {
