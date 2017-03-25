@@ -53,8 +53,8 @@ var player,
     redEnemyMaximumDelay = 14000,
     redEnemyInitialSpeed = 50,
 
-    difficultyHasImproved = false;
-    
+    weaponLevel = 1;
+
 const ACCLERATION = 300, // Not in use
     DRAG = 400; // Not in use
 
@@ -188,62 +188,13 @@ function create() {
 }
 
 function update() {
-    //  Reset the player, then check for movement keys
+    //  Single click capture
     player.body.velocity.setTo(0, 0);
     //player.body.acceleration.x = 0;
     playerHead.body.velocity.setTo(0, 0);
     //playerHead.body.acceleration.x = 0;
 
-    /*//  Move player towards MOUSE pointer
-     if (game.input.x < game.width - 1 &&
-     game.input.x > 1 &&
-     game.input.y > 1 &&
-     game.input.y < game.height - 1) {
-     var minDist = 100;
-     var dist = game.input.x - player.x;
-     player.body.velocity.x = PLAYER.MAX_SPEED * game.math.clamp(dist / minDist, -1, 1);
-     }*/
-    //  Update function for each enemy player to update rotation etc
-
-    //  Check collisions
-    game.physics.arcade.overlap(playerHead, greenEnemies, playerCollide, null, this);
-    game.physics.arcade.overlap(greenEnemies, bullets, hitEnemy, null, this);
-    game.physics.arcade.overlap(barborder, greenEnemies, barCollide, null, this);
-
-    game.physics.arcade.overlap(playerHead, redEnemies, playerCollide, null, this);
-    game.physics.arcade.overlap(redEnemies, bullets, hitEnemy, null, this);
-    game.physics.arcade.overlap(barborder, redEnemies, barCollide, null, this);
-
-    function fireBullet() {
-        //Variant I
-        //  Grab the first bullet we can from the pool
-        /*var bullet = bullets.getFirstExists(false);
- 
-         if (bullet) {
-         bullet.reset(player.x, player.y); //The Reset component allows a Game Object to be reset and repositioned to a new location.
-         bullet.body.velocity.y = -500;
-         
-         //  Make bullet come out of tip of player with right angle
-         var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
-         bullet.reset(player.x + bulletOffset, player.y);
-         bullet.angle = player.angle;
-         game.physics.arcade.velocityFromAngle(bullet.angle - 90, BULLET.SPEED, bullet.body.velocity);
-         bullet.body.velocity.x += player.body.velocity.x;*/
-
-        //Variant II
-        //  To avoid them being allowed to fire too fast we set a time limit
-        if (game.time.now > bulletTimer) {
-            var bullet = bullets.getFirstExists(false);
-
-            if (bullet) {
-                bullet.reset(player.x, player.y); //The Reset component allows a Game Object to be reset and repositioned to a new location.
-                bullet.body.velocity.y = -BULLET.SPEED * factorDifficulty;
-
-                bulletTimer = game.time.now + (BULLET.SPACING / factorDifficulty);
-            }
-        }
-    }
-
+    //player movement
     if (cursors.left.isDown) {
         player.body.velocity.x = -PLAYER.MAX_SPEED; //without smootness of movement
         //player.body.acceleration.x = -ACCLERATION; //with up
@@ -269,9 +220,110 @@ function update() {
         playerHead.x = player.x - 3;
         //player.body.acceleration.x = 0;//with smootness of movement
     }
+
+    //  Check collisions
+    game.physics.arcade.overlap(playerHead, greenEnemies, playerCollide, null, this);
+    game.physics.arcade.overlap(greenEnemies, bullets, hitEnemy, null, this);
+    game.physics.arcade.overlap(barborder, greenEnemies, barCollide, null, this);
+
+    game.physics.arcade.overlap(playerHead, redEnemies, playerCollide, null, this);
+    game.physics.arcade.overlap(redEnemies, bullets, hitEnemy, null, this);
+    game.physics.arcade.overlap(barborder, redEnemies, barCollide, null, this);
+
 }
 
 function render() {
+
+}
+
+function fireBullet() {
+    //Variant I
+    //  Grab the first bullet we can from the pool
+    /*var bullet = bullets.getFirstExists(false);
+ 
+     if (bullet) {
+     bullet.reset(player.x, player.y); //The Reset component allows a Game Object to be reset and repositioned to a new location.
+     bullet.body.velocity.y = -500;
+     
+     //  Make bullet come out of tip of player with right angle
+     var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
+     bullet.reset(player.x + bulletOffset, player.y);
+     bullet.angle = player.angle;
+     game.physics.arcade.velocityFromAngle(bullet.angle - 90, BULLET.SPEED, bullet.body.velocity);
+     bullet.body.velocity.x += player.body.velocity.x;*/
+
+    //Variant II
+    //  To avoid them being allowed to fire too fast we set a time limit
+    switch (weaponLevel) {
+        case 1: {
+            if (game.time.now > bulletTimer) {
+                var bullet = bullets.getFirstExists(false);
+
+                if (bullet) {
+                    bullet.reset(player.x, player.y); //The Reset component allows a Game Object to be reset and repositioned to a new location.
+                    bullet.body.velocity.y = -BULLET.SPEED * factorDifficulty;
+
+                    bulletTimer = game.time.now + (BULLET.SPACING / factorDifficulty);
+                }
+            }
+        }
+            break;
+
+        case 2: {
+            if (game.time.now > bulletTimer) {
+
+
+                for (var i = 0; i < 3; i++) {
+                    var bullet = bullets.getFirstExists(false);
+                    if (bullet) {
+                        //  Make bullet come out of tip of ship with right angle
+                        var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
+                        bullet.reset(player.x + bulletOffset, player.y);
+                        //  "Spread" angle of 1st and 3rd bullets
+                        var spreadAngle;
+                        if (i === 0) spreadAngle = -20;
+                        if (i === 1) spreadAngle = 0;
+                        if (i === 2) spreadAngle = 20;
+                        bullet.angle = player.angle + spreadAngle;
+                        game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET.SPEED, bullet.body.velocity);
+                        bullet.body.velocity.y = -BULLET.SPEED * factorDifficulty;
+                    }
+                    bulletTimer = game.time.now + ((BULLET.SPACING + 300) / factorDifficulty);
+                }
+            }
+        }
+            break;
+
+        case 3: {
+            if (game.time.now > bulletTimer) {
+
+                for (var i = 0; i < 5; i++) {
+                    var bullet = bullets.getFirstExists(false);
+                    if (bullet) {
+                        //  Make bullet come out of tip of ship with right angle
+                        var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
+                        bullet.reset(player.x + bulletOffset, player.y);
+                        //  "Spread" angle of 1st and 3rd bullets
+                        var spreadAngle;
+                        if (i === 0) spreadAngle = -20;
+                        if (i === 1) spreadAngle = 0;
+                        if (i === 2) spreadAngle = 20;
+                        if (i === 3) spreadAngle = 40;
+                        if (i === 4) spreadAngle = -40;
+                        bullet.angle = player.angle + spreadAngle;
+                        game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET.SPEED, bullet.body.velocity);
+                        bullet.body.velocity.y = -BULLET.SPEED * factorDifficulty;
+                    }
+                    bulletTimer = game.time.now + ((BULLET.SPACING + 300) / factorDifficulty);
+                }
+            }
+        }
+            break;
+
+        default: { throw new Error("Weapon level not defined."); }
+            break;
+
+    }
 
 }
 
@@ -423,7 +475,7 @@ function toggleFullScreen() {
 function resetStartingGameStats() {
     resetScore();
     resetLives();
-    resetEnemies();
+    resetDifficulty();
 }
 function resetScore() {
     score = 0;
@@ -433,9 +485,10 @@ function resetLives() {
     livesCount = 3;
     addHearts();
 }
-function resetEnemies() {
+function resetDifficulty() {
     factorDifficulty = 1;
-    
+    weaponLevel = 1;
+
     greenEnemyInitialSpeed = 100;
     greenEnemyMinimumDelay = 1000;
     greenEnemyMaximumDelay = 3000;
@@ -456,9 +509,6 @@ function addHighscore() {
 // }
 function setDifficultyLevel() {
     if (score === 50) {
-        if (!redEnemiesAreLaunched) {
-            launchRedEnemy();
-        }
         factorDifficulty = 1.1;
         improveDifficulty(factorDifficulty);
     } else if (score === 100) {
@@ -469,23 +519,28 @@ function setDifficultyLevel() {
         improveDifficulty(factorDifficulty);
     } else if (score === 300) {
         factorDifficulty = 1.6;
+        weaponLevel = 2;
+        if (!redEnemiesAreLaunched) {
+            launchRedEnemy();
+        }
         improveDifficulty(factorDifficulty);
     } else if (score === 400) {
         factorDifficulty = 1.8;
         improveDifficulty(factorDifficulty);
     } else if (score === 500) {
         factorDifficulty = 2.0;
+        weaponLevel = 3;
         improveDifficulty(factorDifficulty);
-    } 
-    //}
+    }
     function improveDifficulty(factorDifficulty) {
         greenEnemyMinimumDelay = 1000 / factorDifficulty;
         greenEnemyMaximumDelay = 3000 / factorDifficulty;
         greenEnemyInitialSpeed = 100 * factorDifficulty;
 
-        redEnemyMinimumDelay = 10000 / factorDifficulty;
-        redEnemyMaximumDelay = 14000 / factorDifficulty;
-        redEnemyInitialSpeed = 50 * factorDifficulty;
+        redEnemyMinimumDelay = 6000 / factorDifficulty;
+        redEnemyMaximumDelay = 10000 / factorDifficulty;
+        redEnemyInitialSpeed = 60 * factorDifficulty;
     }
 }
 
+//}
