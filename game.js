@@ -16,21 +16,30 @@ var player,
     barborder,
 
     cursors,
-    score = 0,
     scoreText,
-    factorDifficulty = 1,
+    score = 290,
+    highscores = [0, 0, 0, 0, 0],
+
 
     bullets,
     bulletTimer = 0,
 
     fireButton,
-    explosions,
+    whiteExplosions,
+    redExplosions,
 
-    greenEnemies,
-    greenEnemyLaunchTimer,
-    greenEnemyMinimumDelay = 1000,
-    greenEnemyMaximumDelay = 3000,
-    greenEnemyInitialSpeed = 100,
+    whiteMartinis,
+    whiteMartiniLaunchTimer,
+    whiteMartiniMinimumDelay = 1000,
+    whiteMartiniMaximumDelay = 3000,
+    whiteMartiniInitialSpeed = 100,
+
+    redMartinis,
+    redMartiniLaunchTimer,
+    redMartinisAreLaunched = false,
+    redMartiniMinimumDelay = 10000,
+    redMartiniMaximumDelay = 14000,
+    redMartiniInitialSpeed = 50,
 
     pauseKey,
     pauseImage,
@@ -44,33 +53,22 @@ var player,
     fullScreenButton,
     fullScreenKey,
 
-    highscores = [0, 0, 0, 0, 0],
-
-    redEnemies,
-    redEnemyLaunchTimer,
-    redEnemiesAreLaunched = false,
-    redEnemyMinimumDelay = 10000,
-    redEnemyMaximumDelay = 14000,
-    redEnemyInitialSpeed = 50,
-
-    weaponLevel = 1;
-
-const ACCLERATION = 300, // Not in use
-    DRAG = 400; // Not in use
-
+    weaponLevel = 1,
+    factorDifficulty = 1;
 
 function preload() {
     game.load.image('bar', 'assets/images/bar.png');
     game.load.image('player', 'assets/images/Bartender_80_88_invert.png');
     game.load.image('bullet', 'assets/images/green_olive_15_19.png');
-    game.load.image('enemy-green', 'assets/images/glass_80_115.png');
-    game.load.spritesheet('explosion', 'assets/images/explode.png', 133, 95, 6);
+    game.load.image('white-martini', 'assets/images/glass_80_115.png');
+    game.load.image('red-martini', './assets/images/redmartini.png');
+    game.load.spritesheet('white-explosion', 'assets/images/explode.png', 133, 95, 6);
+    game.load.spritesheet('red-explosion', 'assets/images/explode1.png', 128, 128, 16);
     game.load.image('barborder', './assets/images/barborder.png');
     game.load.image('playerhead', './assets/images/playerhead.png');
     game.load.image('paused', './assets/images/paused.png');
     game.load.image('heart', './assets/images/heart.png');
     game.load.image('fullscreen', './assets/images/fullscreen.png');
-    game.load.image('enemy-red', './assets/images/redmartini.png');
 }
 
 function create() {
@@ -116,9 +114,7 @@ function create() {
     game.physics.enable(player, Phaser.Physics.ARCADE);
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-
     player.body.maxVelocity.setTo(PLAYER.MAX_SPEED, PLAYER.MAX_SPEED);
-    //player.body.drag.setTo(DRAG, DRAG);
 
     // Setting the player head. 
     playerHead = game.add.sprite(PLAYER.HEAD.STARTING_POSITION_X, PLAYER.HEAD.STARTING_POSITION_Y, 'playerhead');
@@ -137,44 +133,54 @@ function create() {
      playerTrail.start(false, 5000, 10);*/
 
     //  An explosion pool
-    explosions = game.add.group();
-    explosions.enableBody = true;
-    explosions.physicsBodyType = Phaser.Physics.ARCADE;
-    explosions.createMultiple(30, 'explosion');
-    explosions.setAll('anchor.x', 0.5);
-    explosions.setAll('anchor.y', 0.5);
-    explosions.forEach(function (explosion) {
-        explosion.animations.add('explosion');
+    whiteExplosions = game.add.group();
+    whiteExplosions.enableBody = true;
+    whiteExplosions.physicsBodyType = Phaser.Physics.ARCADE;
+    whiteExplosions.createMultiple(30, 'white-explosion');
+    whiteExplosions.setAll('anchor.x', 0.5);
+    whiteExplosions.setAll('anchor.y', 0.5);
+    whiteExplosions.forEach(function(whiteExplosion) {
+        whiteExplosion.animations.add('white-explosion');
+    });
+
+    redExplosions = game.add.group();
+    redExplosions.enableBody = true;
+    redExplosions.physicsBodyType = Phaser.Physics.ARCADE;
+    redExplosions.createMultiple(30, 'red-explosion');
+    redExplosions.setAll('anchor.x', 0.5);
+    redExplosions.setAll('anchor.y', 0.5);
+    redExplosions.forEach(function(redExplosion) {
+        redExplosion.animations.add('red-explosion');
     });
 
     //  The baddies!
-    greenEnemies = game.add.group();
-    greenEnemies.enableBody = true;
-    greenEnemies.physicsBodyType = Phaser.Physics.ARCADE;
-    greenEnemies.createMultiple(5, 'enemy-green'); //TODO: can add factor to number of enemies in dependence to difficutly level
-    greenEnemies.setAll('anchor.x', 0.5); //places the anchor in the exact middle of the sprite, horizontally and vertically.
-    greenEnemies.setAll('anchor.y', 0.5); //places the anchor in the exact middle of the sprite, horizontally and vertically.
-    greenEnemies.setAll('scale.x', 0.5);
-    greenEnemies.setAll('scale.y', 0.5);
-    greenEnemies.setAll('angle', 0);
-    greenEnemies.forEach(function (enemy) {
+    whiteMartinis = game.add.group();
+    whiteMartinis.enableBody = true;
+    whiteMartinis.physicsBodyType = Phaser.Physics.ARCADE;
+    whiteMartinis.createMultiple(5, 'white-martini'); //TODO: can add factor to number of enemies in dependence to difficutly level
+    whiteMartinis.setAll('anchor.x', 0.5); //places the anchor in the exact middle of the sprite, horizontally and vertically.
+    whiteMartinis.setAll('anchor.y', 0.5); //places the anchor in the exact middle of the sprite, horizontally and vertically.
+    whiteMartinis.setAll('scale.x', 0.5);
+    whiteMartinis.setAll('scale.y', 0.5);
+    whiteMartinis.setAll('angle', 0);
+    whiteMartinis.forEach(function(enemy) {
         enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4); //makes the collision more accurate since it can hit lower area
     });
 
-    launchGreenEnemy();
+    launchWhiteMartini();
 
-    redEnemies = game.add.group();
-    redEnemies.enableBody = true;
-    redEnemies.physicsBodyType = Phaser.Physics.ARCADE;
-    redEnemies.createMultiple(5, 'enemy-red');
-    redEnemies.setAll('anchor.x', 0.5);
-    redEnemies.setAll('anchor.y', 0.5);
-    redEnemies.setAll('scale.x', 0.5);
-    redEnemies.setAll('scale.y', 0.5);
-    redEnemies.setAll('angle', 0);
-    // redEnemies.forEach(function (enemy) {
-    //     enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4); //makes them pretty hard to hit
-    // });
+    redMartinis = game.add.group();
+    redMartinis.enableBody = true;
+    redMartinis.physicsBodyType = Phaser.Physics.ARCADE;
+    redMartinis.createMultiple(5, 'red-martini');
+    redMartinis.setAll('anchor.x', 0.5);
+    redMartinis.setAll('anchor.y', 0.5);
+    redMartinis.setAll('scale.x', 0.5);
+    redMartinis.setAll('scale.y', 0.5);
+    redMartinis.setAll('angle', 0);
+    redMartinis.forEach(function(enemy) {
+        enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4); //makes them pretty hard to hit
+    });
 
     pauseKey = this.input.keyboard.addKey(Phaser.Keyboard.P);
     pauseKey.onDown.add(togglePause, this);
@@ -190,18 +196,14 @@ function create() {
 function update() {
     //  Single click capture
     player.body.velocity.setTo(0, 0);
-    //player.body.acceleration.x = 0;
     playerHead.body.velocity.setTo(0, 0);
-    //playerHead.body.acceleration.x = 0;
 
     //player movement
     if (cursors.left.isDown) {
-        player.body.velocity.x = -PLAYER.MAX_SPEED; //without smootness of movement
-        //player.body.acceleration.x = -ACCLERATION; //with up
+        player.body.velocity.x = -PLAYER.MAX_SPEED;
         playerHead.body.velocity.x = -PLAYER.MAX_SPEED;
     } else if (cursors.right.isDown) {
-        player.body.velocity.x = PLAYER.MAX_SPEED; //without smootness of movement
-        //player.body.acceleration.x = ACCLERATION;
+        player.body.velocity.x = PLAYER.MAX_SPEED;
         playerHead.body.velocity.x = PLAYER.MAX_SPEED;
     }
 
@@ -213,22 +215,20 @@ function update() {
     if (player.x > game.width - 50) {
         player.x = game.width - 50;
         playerHead.x = player.x - 3;
-        //player.body.acceleration.x = 0;//with smootness of movement
     }
     if (player.x < 50) {
         player.x = 50;
         playerHead.x = player.x - 3;
-        //player.body.acceleration.x = 0;//with smootness of movement
     }
 
     //  Check collisions
-    game.physics.arcade.overlap(playerHead, greenEnemies, playerCollide, null, this);
-    game.physics.arcade.overlap(greenEnemies, bullets, hitEnemy, null, this);
-    game.physics.arcade.overlap(barborder, greenEnemies, barCollide, null, this);
+    game.physics.arcade.overlap(playerHead, whiteMartinis, playerCollide, null, this);
+    game.physics.arcade.overlap(whiteMartinis, bullets, hitEnemy, null, this);
+    game.physics.arcade.overlap(barborder, whiteMartinis, barCollide, null, this);
 
-    game.physics.arcade.overlap(playerHead, redEnemies, playerCollide, null, this);
-    game.physics.arcade.overlap(redEnemies, bullets, hitEnemy, null, this);
-    game.physics.arcade.overlap(barborder, redEnemies, barCollide, null, this);
+    game.physics.arcade.overlap(playerHead, redMartinis, playerCollide, null, this);
+    game.physics.arcade.overlap(redMartinis, bullets, hitEnemy, null, this);
+    game.physics.arcade.overlap(barborder, redMartinis, barCollide, null, this);
 
 }
 
@@ -255,74 +255,76 @@ function fireBullet() {
     //Variant II
     //  To avoid them being allowed to fire too fast we set a time limit
     switch (weaponLevel) {
-        case 1: {
-            if (game.time.now > bulletTimer) {
-                var bullet = bullets.getFirstExists(false);
-
-                if (bullet) {
-                    bullet.reset(player.x, player.y); //The Reset component allows a Game Object to be reset and repositioned to a new location.
-                    bullet.body.velocity.y = -BULLET.SPEED * factorDifficulty;
-
-                    bulletTimer = game.time.now + (BULLET.SPACING / factorDifficulty);
-                }
-            }
-        }
-            break;
-
-        case 2: {
-            if (game.time.now > bulletTimer) {
-
-
-                for (var i = 0; i < 3; i++) {
+        case 1:
+            {
+                if (game.time.now > bulletTimer) {
                     var bullet = bullets.getFirstExists(false);
+
                     if (bullet) {
-                        //  Make bullet come out of tip of ship with right angle
-                        var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
-                        bullet.reset(player.x + bulletOffset, player.y);
-                        //  "Spread" angle of 1st and 3rd bullets
-                        var spreadAngle;
-                        if (i === 0) spreadAngle = -20;
-                        if (i === 1) spreadAngle = 0;
-                        if (i === 2) spreadAngle = 20;
-                        bullet.angle = player.angle + spreadAngle;
-                        game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET.SPEED, bullet.body.velocity);
+                        bullet.reset(player.x, player.y); //The Reset component allows a Game Object to be reset and repositioned to a new location.
                         bullet.body.velocity.y = -BULLET.SPEED * factorDifficulty;
+
+                        bulletTimer = game.time.now + (BULLET.SPACING / factorDifficulty);
                     }
-                    bulletTimer = game.time.now + ((BULLET.SPACING + 300) / factorDifficulty);
                 }
             }
-        }
             break;
 
-        case 3: {
-            if (game.time.now > bulletTimer) {
+        case 2:
+            {
+                if (game.time.now > bulletTimer) {
 
-                for (var i = 0; i < 5; i++) {
-                    var bullet = bullets.getFirstExists(false);
-                    if (bullet) {
-                        //  Make bullet come out of tip of ship with right angle
-                        var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
-                        bullet.reset(player.x + bulletOffset, player.y);
-                        //  "Spread" angle of 1st and 3rd bullets
-                        var spreadAngle;
-                        if (i === 0) spreadAngle = -20;
-                        if (i === 1) spreadAngle = 0;
-                        if (i === 2) spreadAngle = 20;
-                        if (i === 3) spreadAngle = 40;
-                        if (i === 4) spreadAngle = -40;
-                        bullet.angle = player.angle + spreadAngle;
-                        game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET.SPEED, bullet.body.velocity);
-                        bullet.body.velocity.y = -BULLET.SPEED * factorDifficulty;
+
+                    for (var i = 0; i < 3; i++) {
+                        var bullet = bullets.getFirstExists(false);
+                        if (bullet) {
+                            //  Make bullet come out of tip of ship with right angle
+                            var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
+                            bullet.reset(player.x + bulletOffset, player.y);
+                            //  "Spread" angle of 1st and 3rd bullets
+                            var spreadAngle;
+                            if (i === 0) spreadAngle = -20;
+                            if (i === 1) spreadAngle = 0;
+                            if (i === 2) spreadAngle = 20;
+                            bullet.angle = player.angle + spreadAngle;
+                            game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET.SPEED, bullet.body.velocity);
+                            bullet.body.velocity.y = -BULLET.SPEED * factorDifficulty;
+                        }
+                        bulletTimer = game.time.now + ((BULLET.SPACING + 300) / factorDifficulty);
                     }
-                    bulletTimer = game.time.now + ((BULLET.SPACING + 300) / factorDifficulty);
                 }
             }
-        }
             break;
 
-        default: { throw new Error("Weapon level not defined."); }
+        case 3:
+            {
+                if (game.time.now > bulletTimer) {
+
+                    for (var i = 0; i < 5; i++) {
+                        var bullet = bullets.getFirstExists(false);
+                        if (bullet) {
+                            //  Make bullet come out of tip of ship with right angle
+                            var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
+                            bullet.reset(player.x + bulletOffset, player.y);
+                            //  "Spread" angle of 1st and 3rd bullets
+                            var spreadAngle;
+                            if (i === 0) spreadAngle = -20;
+                            if (i === 1) spreadAngle = 0;
+                            if (i === 2) spreadAngle = 20;
+                            if (i === 3) spreadAngle = 40;
+                            if (i === 4) spreadAngle = -40;
+                            bullet.angle = player.angle + spreadAngle;
+                            game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET.SPEED, bullet.body.velocity);
+                            bullet.body.velocity.y = -BULLET.SPEED * factorDifficulty;
+                        }
+                        bulletTimer = game.time.now + ((BULLET.SPACING + 300) / factorDifficulty);
+                    }
+                }
+            }
             break;
 
+        default:
+            throw new Error("Weapon level not defined.");
     }
 
 }
@@ -343,7 +345,11 @@ function barCollide(bar, enemy) {
 }
 
 function hitEnemy(enemy, bullet) {
-    killEnemy(enemy, bullet);
+    if (enemy.key === 'white-martini') {
+        killMartini(enemy, bullet, whiteExplosions, 'white-explosion', EXPLOSION.WHITE_SPEED);
+    } else if (enemy.key === 'red-martini') {
+        killMartini(enemy, bullet, redExplosions, 'red-explosion', EXPLOSION.RED_SPEED);
+    }
 
     enemy.kill();
     bullet.kill();
@@ -354,38 +360,38 @@ function hitEnemy(enemy, bullet) {
     setDifficultyLevel();
 }
 
-function killEnemy(enemy, bullet) {
-    var explosion = explosions.getFirstExists(false);
-    explosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
-    explosion.body.velocity.y = enemy.body.velocity.y;
-    explosion.alpha = 0.7;
-    explosion.play('explosion', EXPLOSION.SPEED, false, true);
+function killMartini(enemy, bullet, explosions, animation, speed) {
+    var whiteExplosion = explosions.getFirstExists(false);
+    whiteExplosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
+    whiteExplosion.body.velocity.y = enemy.body.velocity.y;
+    whiteExplosion.alpha = 0.7;
+    whiteExplosion.play(animation, speed, false, true);
 }
 
-function launchGreenEnemy() {
+function launchWhiteMartini() {
     if (!isAlive) {
         return;
     }
 
-    let enemy = greenEnemies.getFirstExists(false);
+    let enemy = whiteMartinis.getFirstExists(false);
 
     if (enemy) {
         enemy.reset(game.rnd.integerInRange(+100, game.width - 100), 0); //The Reset component allows a Game Object to be reset 
         //and repositioned to a new location.
         enemy.body.velocity.x = 0;
-        enemy.body.velocity.y = greenEnemyInitialSpeed;
-        enemy.body.drag.x = 100;
+        enemy.body.velocity.y = whiteMartiniInitialSpeed;
 
         //  Send another enemy soon
-        greenEnemyLaunchTimer = game.time.events.add(game.rnd.integerInRange(greenEnemyMinimumDelay, greenEnemyMaximumDelay), launchGreenEnemy);
+        whiteMartiniLaunchTimer = game.time.events.add(game.rnd.integerInRange(whiteMartiniMinimumDelay, whiteMartiniMaximumDelay), launchWhiteMartini);
     }
 }
 
-function launchRedEnemy() {
+function launchRedMartini() {
     if (!isAlive) {
         return;
     }
-    redEnemiesAreLaunched = true;
+
+    redMartinisAreLaunched = true;
 
     let startingX = game.rnd.integerInRange(100, game.width - 100),
         spread = 60,
@@ -396,14 +402,14 @@ function launchRedEnemy() {
 
     //  Launch wave
     for (var i = 0; i < numEnemiesInWave; i++) {
-        var enemy = redEnemies.getFirstExists(false);
+        var enemy = redMartinis.getFirstExists(false);
         if (enemy) {
             enemy.startingX = startingX;
             enemy.reset(game.width / 2, -verticalSpacing * i);
-            enemy.body.velocity.y = redEnemyInitialSpeed;
+            enemy.body.velocity.y = redMartiniInitialSpeed;
 
             //  Update function for each enemy
-            enemy.update = function () {
+            enemy.update = function() {
                 //  Wave movement
                 this.body.x = this.startingX + Math.sin((this.y) / frequency) * spread;
 
@@ -417,7 +423,7 @@ function launchRedEnemy() {
     }
 
     //  Send another wave soon
-    redEnemyLaunchTimer = game.time.events.add(game.rnd.integerInRange(redEnemyMinimumDelay, redEnemyMaximumDelay), launchRedEnemy);
+    redMartiniLaunchTimer = game.time.events.add(game.rnd.integerInRange(redMartiniMinimumDelay, redMartiniMaximumDelay), launchRedMartini);
 }
 
 function addHearts() {
@@ -441,10 +447,10 @@ function togglePause() {
 
 function endGame() {
     isAlive = false;
-    game.time.events.remove(redEnemyLaunchTimer);
-    game.time.events.remove(greenEnemyLaunchTimer);
-    greenEnemies.callAll('kill');
-    redEnemies.callAll('kill');
+    game.time.events.remove(redMartiniLaunchTimer);
+    game.time.events.remove(whiteMartiniLaunchTimer);
+    whiteMartinis.callAll('kill');
+    redMartinis.callAll('kill');
     addHighscore();
     hearts.children = [];
     gameOverText.revive();
@@ -461,43 +467,47 @@ function restart() {
     playerHead.reset(PLAYER.HEAD.STARTING_POSITION_X, PLAYER.HEAD.STARTING_POSITION_Y);
 
     resetStartingGameStats();
-    launchGreenEnemy();
+    launchWhiteMartini();
 }
 
 function toggleFullScreen() {
     if (game.scale.isFullScreen) {
         game.scale.stopFullScreen();
-    }
-    else {
+    } else {
         game.scale.startFullScreen(true);
     }
 }
+
 function resetStartingGameStats() {
     resetScore();
     resetLives();
     resetDifficulty();
 }
+
 function resetScore() {
     score = 0;
     scoreText.text = 'Score: 0';
 }
+
 function resetLives() {
     livesCount = 3;
     addHearts();
 }
+
 function resetDifficulty() {
     factorDifficulty = 1;
     weaponLevel = 1;
 
-    greenEnemyInitialSpeed = 100;
-    greenEnemyMinimumDelay = 1000;
-    greenEnemyMaximumDelay = 3000;
+    whiteMartiniInitialSpeed = 100;
+    whiteMartiniMinimumDelay = 1000;
+    whiteMartiniMaximumDelay = 3000;
 
-    redEnemyInitialSpeed = 50;
-    redEnemiesAreLaunched = false;
-    redEnemyMinimumDelay = 10000;
-    redEnemyMaximumDelay = 14000;
+    redMartiniInitialSpeed = 50;
+    redMartinisAreLaunched = false;
+    redMartiniMinimumDelay = 10000;
+    redMartiniMaximumDelay = 14000;
 }
+
 function addHighscore() {
     if (highscores.some(highscore => highscore < score)) {
         highscores[highscores.length - 1] = score;
@@ -520,8 +530,8 @@ function setDifficultyLevel() {
     } else if (score === 300) {
         factorDifficulty = 1.6;
         weaponLevel = 2;
-        if (!redEnemiesAreLaunched) {
-            launchRedEnemy();
+        if (!redMartinisAreLaunched) {
+            launchRedMartini();
         }
         improveDifficulty(factorDifficulty);
     } else if (score === 400) {
@@ -532,15 +542,14 @@ function setDifficultyLevel() {
         weaponLevel = 3;
         improveDifficulty(factorDifficulty);
     }
-    function improveDifficulty(factorDifficulty) {
-        greenEnemyMinimumDelay = 1000 / factorDifficulty;
-        greenEnemyMaximumDelay = 3000 / factorDifficulty;
-        greenEnemyInitialSpeed = 100 * factorDifficulty;
 
-        redEnemyMinimumDelay = 6000 / factorDifficulty;
-        redEnemyMaximumDelay = 10000 / factorDifficulty;
-        redEnemyInitialSpeed = 60 * factorDifficulty;
+    function improveDifficulty(factorDifficulty) {
+        whiteMartiniMinimumDelay = 1000 / factorDifficulty;
+        whiteMartiniMaximumDelay = 3000 / factorDifficulty;
+        whiteMartiniInitialSpeed = 100 * factorDifficulty;
+
+        redMartiniMinimumDelay = 6000 / factorDifficulty;
+        redMartiniMaximumDelay = 10000 / factorDifficulty;
+        redMartiniInitialSpeed = 60 * factorDifficulty;
     }
 }
-
-//}
