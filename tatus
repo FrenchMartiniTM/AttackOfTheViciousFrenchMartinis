@@ -1,0 +1,75 @@
+[1mdiff --git a/assets/images/Thumbs.db b/assets/images/Thumbs.db[m
+[1mindex 86fd2f0..ed4e39e 100644[m
+Binary files a/assets/images/Thumbs.db and b/assets/images/Thumbs.db differ
+[1mdiff --git a/game.js b/game.js[m
+[1mindex feac837..2714f25 100644[m
+[1m--- a/game.js[m
+[1m+++ b/game.js[m
+[36m@@ -1,5 +1,5 @@[m
+[31m-//function startGame() {//swiched off to test difficulty level[m
+[31m-//removeMenu(); //swiched off to test difficulty level[m
+[32m+[m[32mfunction startGame() {//swiched off to test difficulty level[m[41m[m
+[32m+[m[32mremoveMenu(); //swiched off to test difficulty level[m[41m[m
+ [m
+ const game = new Phaser.Game(800, 600, Phaser.CANVAS, 'gameContainer', {[m
+     preload,[m
+[36m@@ -504,9 +504,9 @@[m [mfunction addHighscore() {[m
+         highscores.sort((a, b) => b - a);[m
+     }[m
+ }[m
+[31m-// function removeMenu(){//swiched off to test difficulty level[m
+[31m-//    document.getElementById("svgCon").style.display = 'none';[m
+[31m-// }[m
+[32m+[m[32mfunction removeMenu(){//swiched off to test difficulty level[m[41m[m
+[32m+[m[32m   document.getElementById("svgCon").style.display = 'none';[m[41m[m
+[32m+[m[32m}[m[41m[m
+ function setDifficultyLevel() {[m
+     if (score === 50) {[m
+         factorDifficulty = 1.1;[m
+[36m@@ -543,4 +543,4 @@[m [mfunction setDifficultyLevel() {[m
+     }[m
+ }[m
+ [m
+[31m-//}[m
+[32m+[m[32m}[m[41m[m
+[1mdiff --git a/index.html b/index.html[m
+[1mindex a56f6d7..7a3e607 100644[m
+[1m--- a/index.html[m
+[1m+++ b/index.html[m
+[36m@@ -9,9 +9,11 @@[m
+     <link rel="stylesheet" type="text/css" href="./stylesheet.css">[m
+     <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/2.6.2/phaser.min.js" type="text/javascript"></script>-->[m
+     <script src="./scripts/libraries/phaser.js" type="text/javascript"></script>[m
+[32m+[m[32m    <script src="./scripts/main-menu.js"></script>[m[41m[m
+[32m+[m[41m[m
+ </head>[m
+[32m+[m[41m[m
+ <body>[m
+[31m-    <script src="./scripts/main-menu.js"></script>[m
+     <script src="./scripts/common/constants.js" type="text/javascript"></script>[m
+     <script src="game.js" type="text/javascript"></script>[m
+ </body>[m
+[1mdiff --git a/scripts/game-models/bartender.js b/scripts/game-models/bartender.js[m
+[1mindex e69de29..a538bfb 100644[m
+[1m--- a/scripts/game-models/bartender.js[m
+[1m+++ b/scripts/game-models/bartender.js[m
+[36m@@ -0,0 +1,6 @@[m
+[32m+[m[32mclass Bartender extends Phaser.Sprite {[m
+[32m+[m[32m  constructor(game, image) {[m
+[32m+[m[32m    super(game, PLAYER.STARTING_POSITION_X, PLAYER.STARTING_POSITION_Y, image);[m
+[32m+[m[32m    game.add.existing(this);[m
+[32m+[m[32m  }[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/scripts/main-menu.js b/scripts/main-menu.js[m
+[1mindex df60206..55d42fc 100644[m
+[1m--- a/scripts/main-menu.js[m
+[1m+++ b/scripts/main-menu.js[m
+[36m@@ -215,4 +215,4 @@[m [mclass MainMenu {[m
+ }[m
+ [m
+ let mainMenu = new MainMenu();[m
+[31m-mainMenu.load();[m
+\ No newline at end of file[m
+[32m+[m[32mdocument.addEventListener('DOMContentLoaded', mainMenu.load());[m
+\ No newline at end of file[m

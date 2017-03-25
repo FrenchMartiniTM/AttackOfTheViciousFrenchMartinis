@@ -10,7 +10,6 @@ const game = new Phaser.Game(800, 600, Phaser.CANVAS, 'gameContainer', {
 
 var player,
     playerHead,
-    isAlive = true,
 
     bar,
     barborder,
@@ -107,11 +106,8 @@ function create() {
     bullets.setAll('checkWorldBounds', true);
 
     //  The hero!
-    player = game.add.sprite(PLAYER.STARTING_POSITION_X, PLAYER.STARTING_POSITION_Y, 'player');
-    player.anchor.setTo(0.5, 0.5);
-    player.events.onKilled.add(endGame);
+    player = new Bartender(game, 'player');
 
-    game.physics.enable(player, Phaser.Physics.ARCADE);
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     player.body.maxVelocity.setTo(PLAYER.MAX_SPEED, PLAYER.MAX_SPEED);
@@ -139,7 +135,7 @@ function create() {
     whiteExplosions.createMultiple(30, 'white-explosion');
     whiteExplosions.setAll('anchor.x', 0.5);
     whiteExplosions.setAll('anchor.y', 0.5);
-    whiteExplosions.forEach(function(whiteExplosion) {
+    whiteExplosions.forEach(function (whiteExplosion) {
         whiteExplosion.animations.add('white-explosion');
     });
 
@@ -149,7 +145,7 @@ function create() {
     redExplosions.createMultiple(30, 'red-explosion');
     redExplosions.setAll('anchor.x', 0.5);
     redExplosions.setAll('anchor.y', 0.5);
-    redExplosions.forEach(function(redExplosion) {
+    redExplosions.forEach(function (redExplosion) {
         redExplosion.animations.add('red-explosion');
     });
 
@@ -163,7 +159,7 @@ function create() {
     whiteMartinis.setAll('scale.x', 0.5);
     whiteMartinis.setAll('scale.y', 0.5);
     whiteMartinis.setAll('angle', 0);
-    whiteMartinis.forEach(function(enemy) {
+    whiteMartinis.forEach(function (enemy) {
         enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4); //makes the collision more accurate since it can hit lower area
     });
 
@@ -178,7 +174,7 @@ function create() {
     redMartinis.setAll('scale.x', 0.5);
     redMartinis.setAll('scale.y', 0.5);
     redMartinis.setAll('angle', 0);
-    redMartinis.forEach(function(enemy) {
+    redMartinis.forEach(function (enemy) {
         enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4); //makes them pretty hard to hit
     });
 
@@ -200,25 +196,15 @@ function update() {
 
     //player movement
     if (cursors.left.isDown) {
-        player.body.velocity.x = -PLAYER.MAX_SPEED;
+        player.moveLeft();
         playerHead.body.velocity.x = -PLAYER.MAX_SPEED;
     } else if (cursors.right.isDown) {
-        player.body.velocity.x = PLAYER.MAX_SPEED;
+        player.moveRight();
         playerHead.body.velocity.x = PLAYER.MAX_SPEED;
     }
 
     if (player.alive && (fireButton.isDown || game.input.activePointer.isDown)) {
         fireBullet();
-    }
-
-    //  Stop at screen edges
-    if (player.x > game.width - 50) {
-        player.x = game.width - 50;
-        playerHead.x = player.x - 3;
-    }
-    if (player.x < 50) {
-        player.x = 50;
-        playerHead.x = player.x - 3;
     }
 
     //  Check collisions
@@ -332,6 +318,7 @@ function fireBullet() {
 function playerCollide(playerHead, enemy) {
     hearts.callAll('kill');
     player.kill();
+    endGame();
 }
 
 function barCollide(bar, enemy) {
@@ -341,6 +328,7 @@ function barCollide(bar, enemy) {
     livesCount -= 1;
     if (livesCount <= 0) {
         player.kill();
+        endGame();
     }
 }
 
@@ -369,7 +357,7 @@ function killMartini(enemy, bullet, explosions, animation, speed) {
 }
 
 function launchWhiteMartini() {
-    if (!isAlive) {
+    if (!player.alive) {
         return;
     }
 
@@ -387,7 +375,7 @@ function launchWhiteMartini() {
 }
 
 function launchRedMartini() {
-    if (!isAlive) {
+    if (!player.alive) {
         return;
     }
 
@@ -409,7 +397,7 @@ function launchRedMartini() {
             enemy.body.velocity.y = redMartiniInitialSpeed;
 
             //  Update function for each enemy
-            enemy.update = function() {
+            enemy.update = function () {
                 //  Wave movement
                 this.body.x = this.startingX + Math.sin((this.y) / frequency) * spread;
 
@@ -433,7 +421,7 @@ function addHearts() {
 }
 
 function togglePause() {
-    if (!isAlive) {
+    if (!player.alive) {
         return;
     }
 
@@ -446,7 +434,6 @@ function togglePause() {
 }
 
 function endGame() {
-    isAlive = false;
     game.time.events.remove(redMartiniLaunchTimer);
     game.time.events.remove(whiteMartiniLaunchTimer);
     whiteMartinis.callAll('kill');
@@ -461,7 +448,7 @@ function endGame() {
 }
 
 function restart() {
-    isAlive = true;
+    player.alive = true;
     gameOverText.kill();
     player.reset(PLAYER.STARTING_POSITION_X, PLAYER.STARTING_POSITION_Y);
     playerHead.reset(PLAYER.HEAD.STARTING_POSITION_X, PLAYER.HEAD.STARTING_POSITION_Y);
