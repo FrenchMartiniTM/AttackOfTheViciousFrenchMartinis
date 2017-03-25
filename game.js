@@ -39,7 +39,7 @@ var player,
     redMartinisAreLaunched = false,
     redMartiniMinimumDelay = 10000,
     redMartiniMaximumDelay = 14000,
-    redMartiniInitialSpeed = 50,
+    redMartiniInitialSpeed = 100,
 
     pauseKey,
     pauseImage,
@@ -165,6 +165,7 @@ function create() {
     whiteMartinis.setAll('angle', 0);
     whiteMartinis.forEach(function(enemy) {
         enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4); //makes the collision more accurate since it can hit lower area
+        enemy.events.onKilled.add(killWhiteMartini);
     });
 
     launchWhiteMartini();
@@ -180,6 +181,7 @@ function create() {
     redMartinis.setAll('angle', 0);
     redMartinis.forEach(function(enemy) {
         enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4); //makes them pretty hard to hit
+        enemy.events.onKilled.add(killRedMartini);
     });
 
     pauseKey = this.input.keyboard.addKey(Phaser.Keyboard.P);
@@ -345,12 +347,6 @@ function barCollide(bar, enemy) {
 }
 
 function hitEnemy(enemy, bullet) {
-    if (enemy.key === 'white-martini') {
-        killMartini(enemy, bullet, whiteExplosions, 'white-explosion', EXPLOSION.WHITE_SPEED);
-    } else if (enemy.key === 'red-martini') {
-        killMartini(enemy, bullet, redExplosions, 'red-explosion', EXPLOSION.RED_SPEED);
-    }
-
     enemy.kill();
     bullet.kill();
 
@@ -360,12 +356,21 @@ function hitEnemy(enemy, bullet) {
     setDifficultyLevel();
 }
 
-function killMartini(enemy, bullet, explosions, animation, speed) {
-    var whiteExplosion = explosions.getFirstExists(false);
-    whiteExplosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
-    whiteExplosion.body.velocity.y = enemy.body.velocity.y;
+// events - they can accept only one parameter
+function killWhiteMartini(martini) {
+    var whiteExplosion = whiteExplosions.getFirstExists(false);
+    whiteExplosion.reset(martini.body.x + martini.body.halfWidth, martini.body.y + martini.body.halfHeight);
+    whiteExplosion.body.velocity.y = martini.body.velocity.y;
     whiteExplosion.alpha = 0.7;
-    whiteExplosion.play(animation, speed, false, true);
+    whiteExplosion.play('white-explosion', EXPLOSION.WHITE_SPEED, false, true);
+}
+
+function killRedMartini(martini) {
+    var redExplosion = redExplosions.getFirstExists(false);
+    redExplosion.reset(martini.body.x + martini.body.halfWidth, martini.body.y + martini.body.halfHeight);
+    redExplosion.body.velocity.y = martini.body.velocity.y;
+    redExplosion.alpha = 0.7;
+    redExplosion.play('red-explosion', EXPLOSION.RED_SPEED, false, true);
 }
 
 function launchWhiteMartini() {
@@ -447,15 +452,17 @@ function togglePause() {
 
 function endGame() {
     isAlive = false;
-    game.time.events.remove(redMartiniLaunchTimer);
-    game.time.events.remove(whiteMartiniLaunchTimer);
-    whiteMartinis.callAll('kill');
-    redMartinis.callAll('kill');
-    addHighscore();
-    hearts.children = [];
-    gameOverText.revive();
     playerHead.kill();
 
+    game.time.events.remove(redMartiniLaunchTimer);
+    game.time.events.remove(whiteMartiniLaunchTimer);
+
+    whiteMartinis.callAll('kill');
+    redMartinis.callAll('kill');
+
+    addHighscore();
+    gameOverText.revive();
+    hearts.children = [];
 
     spaceRestart = fireButton.onDown.addOnce(restart, this);
 }
