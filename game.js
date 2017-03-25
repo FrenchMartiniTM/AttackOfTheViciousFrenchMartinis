@@ -16,9 +16,8 @@ var player,
 
     cursors,
     scoreText,
-    score = 290,
+    score = 250,
     highscores = [0, 0, 0, 0, 0],
-
 
     bullets,
     bulletTimer = 0,
@@ -35,10 +34,9 @@ var player,
 
     redMartinis,
     redMartiniLaunchTimer,
-    redMartinisAreLaunched = false,
     redMartiniMinimumDelay = 10000,
     redMartiniMaximumDelay = 14000,
-    redMartiniInitialSpeed = 50,
+    redMartiniInitialSpeed = 100,
 
     pauseKey,
     pauseImage,
@@ -89,7 +87,7 @@ function create() {
     gameOverText.anchor.setTo(0.5, 0.5);
     gameOverText.kill();
 
-    scoreText = game.add.text(600, 550, 'score: 0', { fontSize: '32px', fill: '#F00' });
+    scoreText = game.add.text(600, 550, 'score: ' + score, { fontSize: '32px', fill: '#F00' });
 
     //Hearts group
     hearts = game.add.group();
@@ -129,54 +127,15 @@ function create() {
      playerTrail.start(false, 5000, 10);*/
 
     //  An explosion pool
-    whiteExplosions = game.add.group();
-    whiteExplosions.enableBody = true;
-    whiteExplosions.physicsBodyType = Phaser.Physics.ARCADE;
-    whiteExplosions.createMultiple(30, 'white-explosion');
-    whiteExplosions.setAll('anchor.x', 0.5);
-    whiteExplosions.setAll('anchor.y', 0.5);
-    whiteExplosions.forEach(function (whiteExplosion) {
-        whiteExplosion.animations.add('white-explosion');
-    });
 
-    redExplosions = game.add.group();
-    redExplosions.enableBody = true;
-    redExplosions.physicsBodyType = Phaser.Physics.ARCADE;
-    redExplosions.createMultiple(30, 'red-explosion');
-    redExplosions.setAll('anchor.x', 0.5);
-    redExplosions.setAll('anchor.y', 0.5);
-    redExplosions.forEach(function (redExplosion) {
-        redExplosion.animations.add('red-explosion');
-    });
+    whiteExplosions = getExplosions('white-explosion');
+    redExplosions = getExplosions('red-explosion');
 
     //  The baddies!
-    whiteMartinis = game.add.group();
-    whiteMartinis.enableBody = true;
-    whiteMartinis.physicsBodyType = Phaser.Physics.ARCADE;
-    whiteMartinis.createMultiple(5, 'white-martini'); //TODO: can add factor to number of enemies in dependence to difficutly level
-    whiteMartinis.setAll('anchor.x', 0.5); //places the anchor in the exact middle of the sprite, horizontally and vertically.
-    whiteMartinis.setAll('anchor.y', 0.5); //places the anchor in the exact middle of the sprite, horizontally and vertically.
-    whiteMartinis.setAll('scale.x', 0.5);
-    whiteMartinis.setAll('scale.y', 0.5);
-    whiteMartinis.setAll('angle', 0);
-    whiteMartinis.forEach(function (enemy) {
-        enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4); //makes the collision more accurate since it can hit lower area
-    });
+    whiteMartinis = getMartinis(killWhiteMartini, 'white-martini');
+    redMartinis = getMartinis(killRedMartini, 'red-martini');
 
     launchWhiteMartini();
-
-    redMartinis = game.add.group();
-    redMartinis.enableBody = true;
-    redMartinis.physicsBodyType = Phaser.Physics.ARCADE;
-    redMartinis.createMultiple(5, 'red-martini');
-    redMartinis.setAll('anchor.x', 0.5);
-    redMartinis.setAll('anchor.y', 0.5);
-    redMartinis.setAll('scale.x', 0.5);
-    redMartinis.setAll('scale.y', 0.5);
-    redMartinis.setAll('angle', 0);
-    redMartinis.forEach(function (enemy) {
-        enemy.body.setSize(enemy.width * 3 / 4, enemy.height * 3 / 4); //makes them pretty hard to hit
-    });
 
     pauseKey = this.input.keyboard.addKey(Phaser.Keyboard.P);
     pauseKey.onDown.add(togglePause, this);
@@ -222,24 +181,38 @@ function render() {
 
 }
 
-function fireBullet() {
-    //Variant I
-    //  Grab the first bullet we can from the pool
-    /*var bullet = bullets.getFirstExists(false);
- 
-     if (bullet) {
-     bullet.reset(player.x, player.y); //The Reset component allows a Game Object to be reset and repositioned to a new location.
-     bullet.body.velocity.y = -500;
-     
-     //  Make bullet come out of tip of player with right angle
-     var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
-     bullet.reset(player.x + bulletOffset, player.y);
-     bullet.angle = player.angle;
-     game.physics.arcade.velocityFromAngle(bullet.angle - 90, BULLET.SPEED, bullet.body.velocity);
-     bullet.body.velocity.x += player.body.velocity.x;*/
+function getExplosions(explosionAnimation) {
+    const explosionType = game.add.group();
+    explosionType.enableBody = true;
+    explosionType.physicsBodyType = Phaser.Physics.ARCADE;
+    explosionType.createMultiple(30, explosionAnimation);
+    explosionType.setAll('anchor.x', 0.5);
+    explosionType.setAll('anchor.y', 0.5);
+    explosionType.forEach(x => x.animations.add(explosionAnimation));
 
-    //Variant II
-    //  To avoid them being allowed to fire too fast we set a time limit
+    return explosionType;
+}
+
+
+function getMartinis(onKill, image) {
+    const martinis = game.add.group();
+    martinis.enableBody = true;
+    martinis.physicsBodyType = Phaser.Physics.ARCADE;
+    martinis.createMultiple(5, image); //TODO: can add factor to number of enemies in dependence to difficutly level
+    martinis.setAll('anchor.x', 0.5); //places the anchor in the exact middle of the sprite, horizontally and vertically.
+    martinis.setAll('anchor.y', 0.5); //places the anchor in the exact middle of the sprite, horizontally and vertically.
+    martinis.setAll('scale.x', 0.5);
+    martinis.setAll('scale.y', 0.5);
+    martinis.setAll('angle', 0);
+    martinis.forEach(function(enemy) {
+        enemy.body.setSize(enemy.width, enemy.height); //makes the collision more accurate since it can hit lower area
+        enemy.events.onKilled.add(onKill);
+    });
+
+    return martinis;
+}
+
+function fireBullet() {
     switch (weaponLevel) {
         case 1:
             {
@@ -333,27 +306,30 @@ function barCollide(bar, enemy) {
 }
 
 function hitEnemy(enemy, bullet) {
-    if (enemy.key === 'white-martini') {
-        killMartini(enemy, bullet, whiteExplosions, 'white-explosion', EXPLOSION.WHITE_SPEED);
-    } else if (enemy.key === 'red-martini') {
-        killMartini(enemy, bullet, redExplosions, 'red-explosion', EXPLOSION.RED_SPEED);
-    }
-
     enemy.kill();
     bullet.kill();
 
-    score += 10;
-    scoreText.text = 'Score: ' + score;
+    score += enemy.key === 'white-martini' ? 10 : 20;
+    scoreText.text = 'score: ' + score;
 
     setDifficultyLevel();
 }
 
-function killMartini(enemy, bullet, explosions, animation, speed) {
-    var whiteExplosion = explosions.getFirstExists(false);
-    whiteExplosion.reset(enemy.body.x + enemy.body.halfWidth, enemy.body.y + enemy.body.halfHeight);
-    whiteExplosion.body.velocity.y = enemy.body.velocity.y;
-    whiteExplosion.alpha = 0.7;
-    whiteExplosion.play(animation, speed, false, true);
+// events - they can accept only one parameter
+function killWhiteMartini(martini) {
+    killMartini(martini, whiteExplosions, 'white-explosion', EXPLOSION.WHITE_SPEED);
+}
+
+function killRedMartini(martini) {
+    killMartini(martini, redExplosions, 'red-explosion', EXPLOSION.RED_SPEED);
+}
+
+function killMartini(martini, explosions, animation, speed) {
+    const explosion = explosions.getFirstExists(false);
+    explosion.reset(martini.body.x + martini.body.halfWidth, martini.body.y + martini.body.halfHeight);
+    explosion.body.velocity.y = martini.body.velocity.y;
+    explosion.alpha = 0.7;
+    explosion.play(animation, speed, false, true);
 }
 
 function launchWhiteMartini() {
@@ -378,8 +354,6 @@ function launchRedMartini() {
     if (!player.alive) {
         return;
     }
-
-    redMartinisAreLaunched = true;
 
     let startingX = game.rnd.integerInRange(100, game.width - 100),
         spread = 60,
@@ -434,15 +408,18 @@ function togglePause() {
 }
 
 function endGame() {
-    game.time.events.remove(redMartiniLaunchTimer);
-    game.time.events.remove(whiteMartiniLaunchTimer);
-    whiteMartinis.callAll('kill');
-    redMartinis.callAll('kill');
-    addHighscore();
-    hearts.children = [];
-    gameOverText.revive();
+
     playerHead.kill();
 
+    game.time.events.remove(redMartiniLaunchTimer);
+    game.time.events.remove(whiteMartiniLaunchTimer);
+
+    whiteMartinis.callAll('kill');
+    redMartinis.callAll('kill');
+
+    addHighscore();
+    gameOverText.revive();
+    hearts.children = [];
 
     spaceRestart = fireButton.onDown.addOnce(restart, this);
 }
@@ -473,7 +450,7 @@ function resetStartingGameStats() {
 
 function resetScore() {
     score = 0;
-    scoreText.text = 'Score: 0';
+    scoreText.text = 'score: ' + score;
 }
 
 function resetLives() {
@@ -490,7 +467,6 @@ function resetDifficulty() {
     whiteMartiniMaximumDelay = 3000;
 
     redMartiniInitialSpeed = 50;
-    redMartinisAreLaunched = false;
     redMartiniMinimumDelay = 10000;
     redMartiniMaximumDelay = 14000;
 }
@@ -505,32 +481,33 @@ function addHighscore() {
 //    document.getElementById("svgCon").style.display = 'none';
 // }
 function setDifficultyLevel() {
-    if (score === 50) {
-        factorDifficulty = 1.1;
-        improveDifficulty(factorDifficulty);
-    } else if (score === 100) {
-        factorDifficulty = 1.2;
-        improveDifficulty(factorDifficulty);
-    } else if (score === 200) {
-        factorDifficulty = 1.4;
-        improveDifficulty(factorDifficulty);
-    } else if (score === 300) {
-        factorDifficulty = 1.6;
-        weaponLevel = 2;
-        if (!redMartinisAreLaunched) {
+    switch (score) {
+        case 50:
+            factorDifficulty = 1.1;
+            break;
+        case 100:
+            factorDifficulty = 1.2;
+            break;
+        case 200:
+            factorDifficulty = 1.4;
+            break;
+        case 300:
+            factorDifficulty = 1.6;
+            weaponLevel = 2;
             launchRedMartini();
-        }
-        improveDifficulty(factorDifficulty);
-    } else if (score === 400) {
-        factorDifficulty = 1.8;
-        improveDifficulty(factorDifficulty);
-    } else if (score === 500) {
-        factorDifficulty = 2.0;
-        weaponLevel = 3;
-        improveDifficulty(factorDifficulty);
+            break;
+        case 400:
+            factorDifficulty = 1.8;
+            break;
+        case 500:
+            factorDifficulty = 2.0;
+            weaponLevel = 3;
+            break;
+        default:
+            return;;
     }
 
-    function improveDifficulty(factorDifficulty) {
+    (function improveDifficulty() {
         whiteMartiniMinimumDelay = 1000 / factorDifficulty;
         whiteMartiniMaximumDelay = 3000 / factorDifficulty;
         whiteMartiniInitialSpeed = 100 * factorDifficulty;
@@ -538,5 +515,5 @@ function setDifficultyLevel() {
         redMartiniMinimumDelay = 6000 / factorDifficulty;
         redMartiniMaximumDelay = 10000 / factorDifficulty;
         redMartiniInitialSpeed = 60 * factorDifficulty;
-    }
+    })();
 }
