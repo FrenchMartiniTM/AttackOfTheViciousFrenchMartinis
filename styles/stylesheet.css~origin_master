@@ -1,0 +1,13 @@
+body {
+    padding: 0px;
+    margin: 0px;
+    background-color: #000;
+    /* Don't like it pretty much but could leave it*/
+    background-image: url("/assets/images/glass_80_115.png");
+    background-repeat: repeat; 
+}
+canvas {
+    /*Could do some border styling here*/
+    border: 2px solid darkgray;
+    box-shadow: 2px 2px 5px grey;
+}
