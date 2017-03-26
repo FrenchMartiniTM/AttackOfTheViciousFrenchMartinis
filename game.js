@@ -19,8 +19,8 @@ var player,
     score = 250,
     highscores = [0, 0, 0, 0, 0],
 
-    bullets,
-    bulletTimer = 0,
+    weapon,
+    bullets = [],
 
     fireButton,
     whiteExplosions,
@@ -42,7 +42,6 @@ var player,
     pauseImage,
 
     hearts,
-    livesCount = 3,
 
     gameOverMessage = 'GAME OVER!',
     gameOverText,
@@ -57,7 +56,7 @@ function preload() {
     game.load.image('bar', 'assets/images/bar.png');
     game.load.image('player', 'assets/images/Bartender_80_88_invert.png');
     game.load.image('bullet', 'assets/images/green_olive_15_19.png');
-    game.load.image('white-martini', 'assets/images/glass_80_115.png');
+    game.load.image('white-martini', './assets/images/glass_80_115.png');
     game.load.image('red-martini', './assets/images/redmartini.png');
     game.load.spritesheet('white-explosion', 'assets/images/explode.png', 133, 95, 6);
     game.load.spritesheet('red-explosion', 'assets/images/explode1.png', 128, 128, 16);
@@ -89,45 +88,28 @@ function create() {
 
     scoreText = game.add.text(600, 550, 'score: ' + score, { fontSize: '32px', fill: '#F00' });
 
-    //Hearts group
-    hearts = game.add.group();
-    addHearts();
-
-    //  Our bullet group
-    bullets = game.add.group();
-    bullets.enableBody = true;
-    bullets.physicsBodyType = Phaser.Physics.ARCADE;
-    bullets.createMultiple(10, 'bullet');
-    bullets.setAll('anchor.x', 0.5);
-    bullets.setAll('anchor.y', 1);
-    bullets.setAll('outOfBoundsKill', true);
-    bullets.setAll('checkWorldBounds', true);
+    for (let i = 0; i < 10; i += 1) {
+        bullets.push(new Bullet(game, 'bullet'));
+    }
+    
+    weapon = new Weapon(game, bullets);
 
     //  The hero!
     player = new Bartender(game, 'player');
 
+    //Hearts group
+    hearts = game.add.group();
+    addHearts();
+
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    player.body.maxVelocity.setTo(PLAYER.MAX_SPEED, PLAYER.MAX_SPEED);
 
     // Setting the player head. 
     playerHead = game.add.sprite(PLAYER.HEAD.STARTING_POSITION_X, PLAYER.HEAD.STARTING_POSITION_Y, 'playerhead');
     game.physics.enable(playerHead, Phaser.Physics.ARCADE);
     //playerHead.alpha = 0; // uncomment if you want the red line to disappear
 
-    /*//  Add an emitter for the player's trail
-     playerTrail = game.add.emitter(player.x, player.y + 10, 400);
-     playerTrail.width = 10;
-     playerTrail.makeParticles('bullet');
-     playerTrail.setXSpeed(30, -30);
-     playerTrail.setYSpeed(200, 180);
-     playerTrail.setRotation(50, -50);
-     playerTrail.setAlpha(1, 0.01, 800);
-     playerTrail.setScale(0.05, 0.4, 0.05, 0.4, 2000, Phaser.Easing.Quintic.Out);
-     playerTrail.start(false, 5000, 10);*/
-
     //  An explosion pool
-
     whiteExplosions = getExplosions('white-explosion');
     redExplosions = getExplosions('red-explosion');
 
@@ -163,16 +145,16 @@ function update() {
     }
 
     if (player.alive && (fireButton.isDown || game.input.activePointer.isDown)) {
-        fireBullet();
+        weapon.fireBullet(weaponLevel, player, factorDifficulty);
     }
 
     //  Check collisions
     game.physics.arcade.overlap(playerHead, whiteMartinis, playerCollide, null, this);
-    game.physics.arcade.overlap(whiteMartinis, bullets, hitEnemy, null, this);
+    game.physics.arcade.overlap(whiteMartinis, weapon, hitEnemy, null, this);
     game.physics.arcade.overlap(barborder, whiteMartinis, barCollide, null, this);
 
     game.physics.arcade.overlap(playerHead, redMartinis, playerCollide, null, this);
-    game.physics.arcade.overlap(redMartinis, bullets, hitEnemy, null, this);
+    game.physics.arcade.overlap(redMartinis, weapon, hitEnemy, null, this);
     game.physics.arcade.overlap(barborder, redMartinis, barCollide, null, this);
 
 }
@@ -204,88 +186,12 @@ function getMartinis(onKill, image) {
     martinis.setAll('scale.x', 0.5);
     martinis.setAll('scale.y', 0.5);
     martinis.setAll('angle', 0);
-    martinis.forEach(function(enemy) {
+    martinis.forEach(function (enemy) {
         enemy.body.setSize(enemy.width, enemy.height); //makes the collision more accurate since it can hit lower area
         enemy.events.onKilled.add(onKill);
     });
 
     return martinis;
-}
-
-function fireBullet() {
-    switch (weaponLevel) {
-        case 1:
-            {
-                if (game.time.now > bulletTimer) {
-                    var bullet = bullets.getFirstExists(false);
-
-                    if (bullet) {
-                        bullet.reset(player.x, player.y); //The Reset component allows a Game Object to be reset and repositioned to a new location.
-                        bullet.body.velocity.y = -BULLET.SPEED * factorDifficulty;
-
-                        bulletTimer = game.time.now + (BULLET.SPACING / factorDifficulty);
-                    }
-                }
-            }
-            break;
-
-        case 2:
-            {
-                if (game.time.now > bulletTimer) {
-
-
-                    for (var i = 0; i < 3; i++) {
-                        var bullet = bullets.getFirstExists(false);
-                        if (bullet) {
-                            //  Make bullet come out of tip of ship with right angle
-                            var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
-                            bullet.reset(player.x + bulletOffset, player.y);
-                            //  "Spread" angle of 1st and 3rd bullets
-                            var spreadAngle;
-                            if (i === 0) spreadAngle = -20;
-                            if (i === 1) spreadAngle = 0;
-                            if (i === 2) spreadAngle = 20;
-                            bullet.angle = player.angle + spreadAngle;
-                            game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET.SPEED, bullet.body.velocity);
-                            bullet.body.velocity.y = -BULLET.SPEED * factorDifficulty;
-                        }
-                        bulletTimer = game.time.now + ((BULLET.SPACING + 300) / factorDifficulty);
-                    }
-                }
-            }
-            break;
-
-        case 3:
-            {
-                if (game.time.now > bulletTimer) {
-
-                    for (var i = 0; i < 5; i++) {
-                        var bullet = bullets.getFirstExists(false);
-                        if (bullet) {
-                            //  Make bullet come out of tip of ship with right angle
-                            var bulletOffset = 20 * Math.sin(game.math.degToRad(player.angle));
-                            bullet.reset(player.x + bulletOffset, player.y);
-                            //  "Spread" angle of 1st and 3rd bullets
-                            var spreadAngle;
-                            if (i === 0) spreadAngle = -20;
-                            if (i === 1) spreadAngle = 0;
-                            if (i === 2) spreadAngle = 20;
-                            if (i === 3) spreadAngle = 40;
-                            if (i === 4) spreadAngle = -40;
-                            bullet.angle = player.angle + spreadAngle;
-                            game.physics.arcade.velocityFromAngle(spreadAngle - 90, BULLET.SPEED, bullet.body.velocity);
-                            bullet.body.velocity.y = -BULLET.SPEED * factorDifficulty;
-                        }
-                        bulletTimer = game.time.now + ((BULLET.SPACING + 300) / factorDifficulty);
-                    }
-                }
-            }
-            break;
-
-        default:
-            throw new Error("Weapon level not defined.");
-    }
-
 }
 
 function playerCollide(playerHead, enemy) {
@@ -298,8 +204,8 @@ function barCollide(bar, enemy) {
     enemy.kill();
     hearts.children.pop().kill();
 
-    livesCount -= 1;
-    if (livesCount <= 0) {
+    player.lives -= 1;
+    if (player.lives <= 0) {
         player.kill();
         endGame();
     }
@@ -389,7 +295,7 @@ function launchRedMartini() {
 }
 
 function addHearts() {
-    for (var i = 0; i < livesCount; i += 1) {
+    for (var i = 0; i < player.lives; i += 1) {
         hearts.create(5 + i * 33, 560, 'heart');
     }
 }
@@ -454,7 +360,7 @@ function resetScore() {
 }
 
 function resetLives() {
-    livesCount = 3;
+    player.lives = 3;
     addHearts();
 }
 
