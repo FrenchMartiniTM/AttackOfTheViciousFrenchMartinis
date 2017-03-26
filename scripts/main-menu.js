@@ -137,7 +137,8 @@ class MainMenu {
     onClick() {
         const targetId = this.id;
         if (targetId === "start") {
-
+            document.getElementById('svgCon').style.display = 'none';
+            startGame();
         }
         else if (targetId === "controls" || targetId === "highscores" || targetId === "credits") {
             const svg = document.getElementById("svgCon");
@@ -214,5 +215,7 @@ class MainMenu {
     }
 }
 
+window.onload = function(){
 let mainMenu = new MainMenu();
 mainMenu.load();
+}

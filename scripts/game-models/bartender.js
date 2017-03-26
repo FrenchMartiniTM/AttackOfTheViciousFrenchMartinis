@@ -10,14 +10,12 @@ class Bartender extends Phaser.Sprite {
 
   update() {
     //  Stop at screen edges
-    if (player.x > game.width - 50) {
-      player.x = game.width - 50;
-      playerHead.x = player.x - 3;
+    if (this.x > this.game.width - 50) {
+      this.x = this.game.width - 50;
     }
 
-    if (player.x < 50) {
-      player.x = 50;
-      playerHead.x = player.x - 3;
+    if (this.x < 50) {
+      this.x = 50;
     }
   }
 

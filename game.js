@@ -1,12 +1,16 @@
 //function startGame() {//swiched off to test difficulty level
 //removeMenu(); //swiched off to test difficulty level
+let game;
+function startGame(){
+     game = new Phaser.Game(800, 600, Phaser.CANVAS, 'gameContainer', gameState);
+}
 
-const game = new Phaser.Game(800, 600, Phaser.CANVAS, 'gameContainer', {
+const gameState = {
     preload,
     create,
     update,
     render
-});
+};
 
 var player,
     playerHead,
@@ -91,7 +95,7 @@ function create() {
     for (let i = 0; i < 10; i += 1) {
         bullets.push(new Bullet(game, 'bullet'));
     }
-    
+
     weapon = new Weapon(game, bullets);
 
     //  The hero!
@@ -146,6 +150,16 @@ function update() {
 
     if (player.alive && (fireButton.isDown || game.input.activePointer.isDown)) {
         weapon.fireBullet(weaponLevel, player, factorDifficulty);
+    }
+
+    if (player.x > game.width - 50) {
+      player.x = game.width - 50;
+      playerHead.x = player.x - 3;
+    }
+
+    if (player.x < 50) {
+      player.x = 50;
+      playerHead.x = player.x - 3;
     }
 
     //  Check collisions
@@ -331,8 +345,8 @@ function endGame() {
 }
 
 function restart() {
-    player.alive = true;
     gameOverText.kill();
+    player.alive = true;
     player.reset(PLAYER.STARTING_POSITION_X, PLAYER.STARTING_POSITION_Y);
     playerHead.reset(PLAYER.HEAD.STARTING_POSITION_X, PLAYER.HEAD.STARTING_POSITION_Y);
 
