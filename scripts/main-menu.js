@@ -14,23 +14,31 @@ class MainMenu {
         if (typeof highscores === "undefind") {
             highscores = [];
         }
-
+        this._playerName = "Bartender"
         this._highscores = highscores;
+    }
+
+    get playerName() {
+        return this._playerName;
+    }
+
+    set playerName(value) {
+        this._playerName = value;
     }
 
     load() {
         const buttonLabels = ["Start Game", "Controls", "Highscores", "Credits", "Quit Game"],
-            buttonIds = ["start", "controls", "highscores", "credits", "quit"],
-            svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"),
-            buttonHight = 50,
-            buttonWidth = 240,
-            svgWidth = 800,
-            svgHight = 600,
-            buttonsStartX = 270,
-            buttonsStartY = 210,
-            labelsStartX = 270,
-            labelsStartY = 250,
-            step = 80;
+                buttonIds = ["start", "controls", "highscores", "credits", "quit"],
+                svg = document.createElementNS("http://www.w3.org/2000/svg", "svg"),
+                buttonHight = 50,
+                buttonWidth = 240,
+                svgWidth = 800,
+                svgHight = 600,
+                buttonsStartX = 270,
+                buttonsStartY = 210,
+                labelsStartX = 270,
+                labelsStartY = 250,
+                step = 80;
         svg.setAttribute("id", "svgCon");
         svg.setAttribute("width", svgWidth);
         svg.setAttribute("height", svgHight);
@@ -38,50 +46,17 @@ class MainMenu {
         svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns", "http://www.w3.org/2000/svg");
         svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
 
-        const top = document.createElement("div");
-        top.setAttribute("id", "top");
-        document.body.appendChild(top);
-
         const logo = SvgUtils.createSVG("image", { "id": "logo",
 				"width": 756,
 				"height": 152,
                 "x": "22",
-                "y": "50",
+                "y": "50"
         });
         logo.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/logo.png");
         svg.appendChild(logo);
-        
-        for (let i in buttonLabels) {
-            const buttonLabel = SvgUtils.createSVG("text", { "class": "button-text",
-                    "x": labelsStartX + buttonWidth / (4 * buttonLabels[i].length),
-                    "y": i * step + labelsStartY,
-                    "textLength": (buttonWidth - (buttonWidth / (2 * buttonLabels[i].length) | 0)),
-                    "lengthAdjust": "spacingAndGlyphs",
-                    "fill": "#fff",
-                    "stroke": "#ff0000",
-                    "font-family": "Verdana",
-                    "font-size": "36px"
-            });
-            
-            buttonLabel.innerHTML = buttonLabels[i];
-            svg.appendChild(buttonLabel);
-
-            const button = SvgUtils.createSVG("rect", {"class": "button",
-                    "width": buttonWidth,
-                    "height": buttonHight,
-                    "id": buttonIds[i],
-                    "rx": "10",
-                    "ry": "10",
-                    "x": buttonsStartX,
-                    "y": i * step + buttonsStartY,
-            });
-            
-            button.addEventListener("click", this.onClick);
-            svg.appendChild(button);
-        }
 
         for (let i = 1; i <= 10; i += 1) {
-            const backgroundGlass = SvgUtils.createSVG("image", { "y": -200,
+            const backgroundGlass = SvgUtils.createSVG("image", { "class": "background-glass", "y": -200,
 					"style": "pointer-events: none;",
 					"width": "80",
 					"height": "115"
@@ -95,12 +70,12 @@ class MainMenu {
                 backgroundGlass.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/glass_80_115.png");
                 backgroundGlass.setAttribute("x", "-200");
                 const animateX = SvgUtils.createSVG("animate", { "attributeName": "x",
-                        "from": -20 * i,
-                        "to": 800 + (20 * i),
-                        "dur": (i % 5) + 5 + "s",
+                        "from": -40 * i,
+                        "to": 800 + (40 * i),
+                        "dur": (i % 5) + i + 5 + "s",
                         "attributeType": "CSS",
                         "repeatCount": "indefinite",
-                        "begin": (i % 3) + "s"
+                        "begin": (i % 3) + i + "s"
                 });
                 backgroundGlass.appendChild(animateX);
             }
@@ -108,12 +83,12 @@ class MainMenu {
                 backgroundGlass.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/glass_80_115_rotated.png");
                 backgroundGlass.setAttribute("x", "1000");
                 const animateX = SvgUtils.createSVG("animate", { "attributeName": "x",
-                        "from": 800 + (20 * i),
-                        "to": -20 * i,
-                        "dur": (i % 6) + "s",
+                        "from": 800 + (40 * i),
+                        "to": -40 * i,
+                        "dur": (i % 6) + i + "s",
                         "attributeType": "CSS",
                         "repeatCount": "indefinite",
-                        "begin": (i % 3) + "s"
+                        "begin": (i % 3) + i + "s"
                 });
                 backgroundGlass.appendChild(animateX);
             }
@@ -121,17 +96,62 @@ class MainMenu {
             const animateY = SvgUtils.createSVG("animate", { "attributeName": "y",
                     "from": -200,
                     "to": 900,
-                    "dur": (i % 5) + 5 + "s",
+                    "dur": (i % 5) + i + 5 + "s",
                     "attributeType": "CSS",
                     "repeatCount": "indefinite",
-                    "begin": (i % 3) + "s"
+                    "begin": (i % 3) + i + "s"
             });
             backgroundGlass.appendChild(animateY);
 
             svg.appendChild(backgroundGlass);
         }
+        
+        for (let i in buttonLabels) {
+            const button = SvgUtils.createSVG("rect", { "class": "button-menu",
+                    "width": buttonWidth,
+                    "height": buttonHight,
+                    "id": buttonIds[i],
+                    "rx": "10",
+                    "ry": "10",
+                    "x": buttonsStartX,
+                    "y": i * step + buttonsStartY
+            });
+            
+            button.addEventListener("click", this.onClick, false);
 
+            const buttonLabel = SvgUtils.createSVG("text", { "class": "button-text",
+                    "x": labelsStartX + buttonWidth / (4 * buttonLabels[i].length),
+                    "y": i * step + labelsStartY,
+                    "textLength": (buttonWidth - (buttonWidth / (2 * buttonLabels[i].length) | 0)),
+                    "lengthAdjust": "spacingAndGlyphs",
+                    "stroke": "#ff0000",
+                    "font-family": "Copperplate Gothic Light",
+                    "font-size": "40px"
+            });
+            
+            buttonLabel.innerHTML = buttonLabels[i];
+            svg.appendChild(buttonLabel);
+            svg.appendChild(button);
+        }
+        
+        let top = document.getElementById("top");
+        if (top === null) {
+            top = document.createElement("div");
+            top.setAttribute("id", "top");
+            document.body.appendChild(top);
+        }
         top.appendChild(svg);
+    }
+
+    onBodyResize() {
+        const resizedWidth = this.innerWidth;
+        const resizedHeight = this.innerHeight;
+        const resizedX = (((resizedWidth - 800) / 2) | 0) < 0 ? 0 : (((resizedWidth - 800) / 2) | 0);
+        const resizedY = (((resizedHeight - 600) / 2) | 0) < 0 ? 0 : (((resizedHeight - 600) / 2) | 0);
+        const topCon = this.document.getElementById("top");
+        if (topCon !== null) {
+            topCon.setAttribute("style", "margin-left: " + resizedX + "px; margin-top: " + resizedY + "px;");
+        }
     }
 
     onClick() {
@@ -149,23 +169,11 @@ class MainMenu {
                     "rx": "20",
                     "ry": "20",
                     "x": 100,
-                    "y": 100,
-                    "z-index": 1
+                    "y": 100
             });
-
-            const animation = SvgUtils.createSVG("animate", { "attributeName": "opacity",
-                    "from": "1",
-                    "to": "0",
-                    "dur": "2s",
-                    "attributeType": "CSS",
-                    "repeatCount": "1",
-                    "begin": "0s"
-            });
-
-            infoPanel.appendChild(animation);
 
             const buttonHight = 40,
-                    buttonWidth = 200,
+                    buttonWidth = 180,
                     svgWidth = 800,
                     svgHight = 600,
                     buttonText = "Close";
@@ -176,10 +184,9 @@ class MainMenu {
                     "id": "button-label",
                     "textLength": (buttonWidth - ((buttonWidth / buttonText.length) | 0)),
                     "lengthAdjust": "spacingAndGlyphs",
-                    "fill": "#fff",
                     "stroke": "#ff0000",
-                    "font-family": "Verdana",
-                    "font-size": "36px"
+                    "font-family": "Copperplate Gothic Light",
+                    "font-size": "30px"
             });
             
             closeButtonLabel.innerHTML = buttonText;
@@ -194,6 +201,8 @@ class MainMenu {
                     "y": 520,
             });
             
+            let contents = [];
+
             button.addEventListener("click", function() {
                 const label = document.getElementById("button-label");
                 const button = document.getElementById("close");
@@ -201,21 +210,76 @@ class MainMenu {
                 label.remove();
                 button.remove();
                 infoPanel.remove();
+                let nickname = document.getElementById("nickname-input").value;
+                contents.forEach(e => e.remove());
+                this.removeEventListener("click", function(){});
+
+                if (nickname !== mainMenu.playerName) {
+                    mainMenu.playerName = nickname;
+                }
             });
 
             svg.appendChild(infoPanel);
             svg.appendChild(closeButtonLabel);
             svg.appendChild(button);
-        }
-        else if (targetId == "quit") {
-			document.getElementById("top").innerHTML = "";
-			document.getElementById("top").outerHTML = "";
-			delete(this);
+
+           if (targetId === "controls") {
+                const title = SvgUtils.createSVG("text", { "class": "title-text",
+                        "x": 240,
+                        "y": 160,
+                        "id": "controls-title",
+                        "lengthAdjust": "spacingAndGlyphs",
+                        "textLength": (2 * buttonWidth - ((buttonWidth / buttonText.length) | 0)),
+                        "fill": "#fff",
+                        "stroke": "#ff0000",
+                        "font-family": "Copperplate Gothic Light",
+                        "font-size": "40pt"
+                });
+                title.innerHTML = "Controls";
+                contents.push(title);
+
+                const nicknameInput = SvgUtils.createSVG("foreignObject", { "class": "title-text",
+                        "x": 400,
+                        "y": 220,
+                        "width": 280,
+                        "height": 50
+                });
+
+                const xmlnsDiv = document.createElement("div");
+                xmlnsDiv.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
+
+                const input = document.createElement("input");
+                input.setAttribute("type", "text");
+                input.setAttribute("id", "nickname-input");
+                input.setAttribute("value", mainMenu.playerName);
+                xmlnsDiv.appendChild(input);
+                nicknameInput.appendChild(xmlnsDiv);
+                contents.push(nicknameInput);
+
+                const inputLabel = SvgUtils.createSVG("text", { "class": "title-text",
+                        "x": 240,
+                        "y": 260,
+                        "id": "controls-title",
+                        "lengthAdjust": "spacingAndGlyphs",
+                        "textLength": (buttonWidth - ((buttonWidth / buttonText.length) | 0)),
+                        "fill": "#fff",
+                        "stroke": "#ff0000",
+                        "font-family": "Copperplate Gothic Light",
+                        "font-size": "24pt"
+                });
+                inputLabel.innerHTML = "Nickname:";
+                contents.push(inputLabel);
+
+                contents.forEach(e => svg.appendChild(e));
+           }
         }
     }
 }
 
-window.onload = function(){
-let mainMenu = new MainMenu();
-mainMenu.load();
+
+const mainMenu = new MainMenu();
+window.onload = function() {
+    mainMenu.load();
+    mainMenu.onBodyResize.call(this);
+    this.addEventListener("resize", mainMenu.onBodyResize, false);
 }
