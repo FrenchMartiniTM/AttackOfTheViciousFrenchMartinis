@@ -70,8 +70,8 @@ class MainMenu {
                 backgroundGlass.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/glass_80_115.png");
                 backgroundGlass.setAttribute("x", "-200");
                 const animateX = SvgUtils.createSVG("animate", { "attributeName": "x",
-                        "from": -40 * i,
-                        "to": 800 + (40 * i),
+                        "from": (-40 * i) - 100,
+                        "to": 900 + (40 * i),
                         "dur": (i % 5) + i + 5 + "s",
                         "attributeType": "CSS",
                         "repeatCount": "indefinite",
@@ -83,8 +83,8 @@ class MainMenu {
                 backgroundGlass.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/glass_80_115_rotated.png");
                 backgroundGlass.setAttribute("x", "1000");
                 const animateX = SvgUtils.createSVG("animate", { "attributeName": "x",
-                        "from": 800 + (40 * i),
-                        "to": -40 * i,
+                        "from": 900 + (40 * i),
+                        "to": (-40 * i) - 100,
                         "dur": (i % 6) + i + "s",
                         "attributeType": "CSS",
                         "repeatCount": "indefinite",
