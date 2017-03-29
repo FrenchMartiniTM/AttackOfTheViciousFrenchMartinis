@@ -2,7 +2,7 @@ body {
     padding: 0px;
     margin: 0px;
     background-color: #000;
-    background-image: url("/assets/images/glass_80_115.png");
+    background-image: url("../assets/images/glass_80_115.png");
     background-repeat: repeat; 
 }
 

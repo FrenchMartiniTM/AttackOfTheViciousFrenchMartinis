@@ -452,7 +452,7 @@ class MainMenu {
             }
 
             if (targetId === "credits") {
-                let paths = ["Arnaudov_St", "bobi_dobroto", "dreadlocker", "gchankov", "ludzhev", "martinboykov", "rosen.urkov"];
+                let paths = ["Arnaudov_St", "gchankov", "ludzhev", "martinboykov", "rosen.urkov"];
 
                 const title = SvgUtils.createSVG("text", {
                     "class": "title-text",
