@@ -16,10 +16,10 @@ class MainMenu {
         }
         this._playerName = "Bartender"
         this._highscores = [
-                ["Bartender", 0],
-                ["Bartender", 0],
-                ["Bartender", 0],
-                ["Bartender", 0],
+                ["Bartender", 10000],
+                ["Bartender", 1000],
+                ["Bartender", 100],
+                ["Bartender", 10],
                 ["Bartender", 0]
         ];
     }
@@ -226,12 +226,12 @@ class MainMenu {
                 label.remove();
                 button.remove();
                 infoPanel.remove();
-                let nickname = document.getElementById("nickname-input").value;
+                let nicknameInput = document.getElementById("nickname-input");
                 contents.forEach(e => e.remove());
                 this.removeEventListener("click", function(){});
 
-                if (nickname !== mainMenu.playerName) {
-                    mainMenu.playerName = nickname;
+                if ((nicknameInput !== null) && (nicknameInput.value !== mainMenu.playerName)) {
+                    mainMenu.playerName = nicknameInput.value;
                 }
             });
 
@@ -285,6 +285,50 @@ class MainMenu {
                 });
                 inputLabel.innerHTML = "Nickname:";
                 contents.push(inputLabel);
+
+                contents.forEach(e => svg.appendChild(e));
+           }
+
+           if (targetId === "highscores") {
+                const title = SvgUtils.createSVG("text", { "class": "title-text",
+                        "x": 240,
+                        "y": 160,
+                        "id": "controls-title",
+                        "lengthAdjust": "spacingAndGlyphs",
+                        "textLength": (2 * buttonWidth - ((buttonWidth / buttonText.length) | 0)),
+                        "fill": "#fff",
+                        "stroke": "#ff0000",
+                        "font-family": "Copperplate Gothic Light",
+                        "font-size": "40pt"
+                });
+                title.innerHTML = "Highscores";
+                contents.push(title);
+
+                const symbol = SvgUtils.createSVG("symbol", { "id": "text-symbol"});
+
+                for (let i = 0; i < mainMenu._highscores.length; i+= 1) {
+                    const userText = SvgUtils.createSVG("text", { "class": "highscore-text-username",
+                        "x": 140,
+                        "y": 250 + (i * 50)
+                    });
+                    userText.innerHTML = "" + (i + 1) + ". " + mainMenu._highscores[i][0];
+                    symbol.appendChild(userText);
+
+                    let scoresText = "" + mainMenu._highscores[i][1];
+                    const userScore = SvgUtils.createSVG("text", { "class": "highscore-text-username",
+                        "x": 660 - (scoresText.length * 30),
+                        "y": 250 + (i * 50)
+                    });
+                    userScore.innerHTML = scoresText;
+                    symbol.appendChild(userScore);
+                }
+                contents.push(symbol);
+
+                for (let i = 0; i < 5; i+= 1) {
+                    const use = SvgUtils.createSVG("use", { "class": "text-username-use"});
+                    use.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#text-symbol");
+                    contents.push(use);
+                }
 
                 contents.forEach(e => svg.appendChild(e));
            }
