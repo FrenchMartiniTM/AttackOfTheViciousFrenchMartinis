@@ -300,9 +300,6 @@ function addHearts() {
 }
 
 function togglePause() {
-    if (!player.alive) {
-        return;
-    }
 
     game.physics.arcade.isPaused = (game.physics.arcade.isPaused) ? false : true;
     if (game.physics.arcade.isPaused) {
