@@ -10,12 +10,9 @@ class SvgUtils {
 }
 
 class MainMenu {
-    constructor(highscores) {
-        if (typeof highscores === "undefind") {
-            highscores = [];
-        }
-        this._playerName = "Bartender"
-        this._highscores = [
+    constructor() {
+        this.playerName = "Bartender";
+        this.highscores = [
             ["Bartender", 10000],
             ["Bartender", 1000],
             ["Bartender", 100],
@@ -24,22 +21,14 @@ class MainMenu {
         ];
     }
 
-    get playerName() {
-        return this._playerName;
-    }
-
-    set playerName(value) {
-        this._playerName = value;
-    }
-
     updateHighscores(score) {
-        this._highscores.push([this._playerName, score]);
+        this.highscores.push([this._playerName, score]);
 
-        this._highscores.sort(function(a, b) {
+        this.highscores.sort(function(a, b) {
             return b[1] - a[1];
         });
 
-        this._highscores.pop();
+        this.highscores.pop();
     }
 
     load() {
@@ -55,6 +44,7 @@ class MainMenu {
             labelsStartX = 270,
             labelsStartY = 250,
             step = 80;
+
         svg.setAttribute("id", "svgCon");
         svg.setAttribute("width", svgWidth);
         svg.setAttribute("height", svgHight);
@@ -80,6 +70,7 @@ class MainMenu {
                 "width": 80,
                 "height": 115
             });
+
             if ((i % 3) === 0) {
                 backgroundGlass.setAttribute("transform", "rotate(45)");
             }
@@ -424,16 +415,16 @@ class MainMenu {
 
                 const symbol = SvgUtils.createSVG("symbol", { "id": "text-symbol" });
 
-                for (let i = 0; i < mainMenu._highscores.length; i += 1) {
+                for (let i = 0; i < mainMenu.highscores.length; i += 1) {
                     const userText = SvgUtils.createSVG("text", {
                         "class": "highscore-text-username",
                         "x": 140,
                         "y": 250 + (i * 50)
                     });
-                    userText.innerHTML = "" + (i + 1) + ". " + mainMenu._highscores[i][0];
+                    userText.innerHTML = "" + (i + 1) + ". " + mainMenu.highscores[i][0];
                     symbol.appendChild(userText);
 
-                    let scoresText = "" + mainMenu._highscores[i][1];
+                    let scoresText = "" + mainMenu.highscores[i][1];
                     const userScore = SvgUtils.createSVG("text", {
                         "class": "highscore-text-username",
                         "x": 660 - (scoresText.length * 30),
