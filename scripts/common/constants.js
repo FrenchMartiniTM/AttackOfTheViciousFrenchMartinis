@@ -11,7 +11,7 @@ const PLAYER = {
 
 const BAR = {
     BORDER_POSITION_X: 0,
-    BORDER_POSITION_Y: 470,
+    BORDER_POSITION_Y: 448,
 };
 
 const BULLET = {
