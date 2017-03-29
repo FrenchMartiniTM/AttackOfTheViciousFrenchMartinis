@@ -46,7 +46,6 @@ function preload() {
     game.load.spritesheet('red-explosion', 'assets/images/explode1.png', 128, 128, 16);
     game.load.image('barborder', './assets/images/barborder.png');
     game.load.image('playerhead', './assets/images/playerhead.png');
-    game.load.image('paused', './assets/images/paused.png');
     game.load.image('heart', './assets/images/heart.png');
     game.load.image('fullscreen', './assets/images/fullscreen.png');
 }
@@ -64,7 +63,7 @@ function create() {
     barborder = game.add.sprite(BAR.BORDER_POSITION_X, BAR.BORDER_POSITION_Y, 'barborder');
     game.physics.enable(barborder, Phaser.Physics.ARCADE);
     barborder.body.immovable = true;
-    //barborder.alpha = 0; // uncomment if you want the red line to disappear
+    barborder.alpha = 0; // uncomment if you want the red line to disappear
 
     gameOverText = game.add.text(
         game.world.centerX,
@@ -95,7 +94,7 @@ function create() {
 
     playerHead = game.add.sprite(PLAYER.HEAD.STARTING_POSITION_X, PLAYER.HEAD.STARTING_POSITION_Y, 'playerhead');
     game.physics.enable(playerHead, Phaser.Physics.ARCADE);
-    //playerHead.alpha = 0; // uncomment if you want the red line to disappear
+    playerHead.alpha = 0; // uncomment if you want the red line to disappear
 
     whiteExplosions = getExplosions('white-explosion');
     redExplosions = getExplosions('red-explosion');
