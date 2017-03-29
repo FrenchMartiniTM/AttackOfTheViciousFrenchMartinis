@@ -403,14 +403,16 @@ function setDifficultyLevel() {
             launchRedMartini();
             break;
         case 400:
+        case 410:
             GAME_VARIABLES.factorDifficulty = 1.8;
             break;
         case 500:
+        case 510:
             GAME_VARIABLES.factorDifficulty = 2.0;
             GAME_VARIABLES.weaponLevel = 3;
             break;
         default:
-            break;
+            return;
     }
 
     (function improveDifficulty() {
