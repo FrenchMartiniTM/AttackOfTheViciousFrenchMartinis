@@ -229,7 +229,12 @@ function killMartini(martini, explosions, animation, speed) {
 }
 
 function launchWhiteMartini() {
-    if (!player.alive) {
+    whiteMartiniLaunchTimer = game.time.events.add(
+        game.rnd.integerInRange(MARTINI.whiteMartini.minimumDelay, MARTINI.whiteMartini.maximumDelay),
+        launchWhiteMartini
+    );
+    
+    if (!player.alive || game.physics.arcade.isPaused) {
         return;
     }
 
@@ -240,16 +245,17 @@ function launchWhiteMartini() {
 
         enemy.body.velocity.x = 0;
         enemy.body.velocity.y = MARTINI.whiteMartini.initialSpeed;
-
-        whiteMartiniLaunchTimer = game.time.events.add(
-            game.rnd.integerInRange(MARTINI.whiteMartini.minimumDelay, MARTINI.whiteMartini.maximumDelay),
-            launchWhiteMartini
-        );
     }
 }
 
 function launchRedMartini() {
-    if (!player.alive) {
+    //  Send another wave soon
+    redMartiniLaunchTimer = game.time.events.add(
+        game.rnd.integerInRange(MARTINI.redMartini.minimumDelay, MARTINI.redMartini.maximumDelay),
+        launchRedMartini
+    );
+
+    if (!player.alive || game.physics.arcade.isPaused) {
         return;
     }
 
@@ -276,12 +282,6 @@ function launchRedMartini() {
             };
         }
     }
-
-    //  Send another wave soon
-    redMartiniLaunchTimer = game.time.events.add(
-        game.rnd.integerInRange(MARTINI.redMartini.minimumDelay, MARTINI.redMartini.maximumDelay),
-        launchRedMartini
-    );
 }
 
 function addHearts() {
