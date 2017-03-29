@@ -1,8 +1,13 @@
-//function startGame() {//swiched off to test difficulty level
-//removeMenu(); //swiched off to test difficulty level
+
 let game;
-function startGame(){
-     game = new Phaser.Game(800, 600, Phaser.CANVAS, 'gameContainer', gameState);
+function startGame() {
+    if (!game) {
+        document.getElementById("svgCon").style.display = 'none';
+        game = new Phaser.Game(800, 600, Phaser.CANVAS, 'gameContainer', gameState);
+    }
+    else {
+        togglePause();
+    }
 }
 
 const gameState = {
@@ -21,7 +26,6 @@ var player,
     cursors,
     scoreText,
     score = 250,
-    highscores = [0, 0, 0, 0, 0],
 
     weapon,
     bullets = [],
@@ -43,7 +47,6 @@ var player,
     redMartiniInitialSpeed = 100,
 
     pauseKey,
-    pauseImage,
 
     hearts,
 
@@ -123,10 +126,8 @@ function create() {
 
     launchWhiteMartini();
 
-    pauseKey = this.input.keyboard.addKey(Phaser.Keyboard.P);
+    pauseKey = this.input.keyboard.addKey(Phaser.Keyboard.ESC);
     pauseKey.onDown.add(togglePause, this);
-    pauseImage = game.add.sprite(250, 100, 'paused');
-    pauseImage.kill();
 
     game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
     fullScreenButton = game.add.button(game.width - 32, 0, 'fullscreen', toggleFullScreen, this, null, null, null);
@@ -321,9 +322,9 @@ function togglePause() {
 
     game.physics.arcade.isPaused = (game.physics.arcade.isPaused) ? false : true;
     if (game.physics.arcade.isPaused) {
-        pauseImage.revive();
+        showMenu();
     } else {
-        pauseImage.kill();
+        removeMenu();
     }
 }
 
@@ -340,7 +341,7 @@ function endGame() {
     addHighscore();
     gameOverText.revive();
     hearts.children = [];
-
+    
     spaceRestart = fireButton.onDown.addOnce(restart, this);
 }
 
@@ -392,14 +393,16 @@ function resetDifficulty() {
 }
 
 function addHighscore() {
-    if (highscores.some(highscore => highscore < score)) {
-        highscores[highscores.length - 1] = score;
-        highscores.sort((a, b) => b - a);
-    }
+    mainMenu.updateHighscores(score);
 }
-// function removeMenu(){//swiched off to test difficulty level
-//    document.getElementById("svgCon").style.display = 'none';
-// }
+function removeMenu(){//swiched off to test difficulty level
+    document.getElementById("svgCon").style.display = 'none';
+    document.getElementsByTagName("canvas")[0].style.display = 'block';
+}
+function showMenu(){//swiched off to test difficulty level
+    document.getElementsByTagName("canvas")[0].style.display = 'none';
+    document.getElementById("svgCon").style.display = 'inline-block';
+}
 function setDifficultyLevel() {
     switch (score) {
         case 50:

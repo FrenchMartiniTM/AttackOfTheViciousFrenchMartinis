@@ -15,7 +15,13 @@ class MainMenu {
             highscores = [];
         }
         this._playerName = "Bartender"
-        this._highscores = highscores;
+        this._highscores = [
+                ["Bartender", 0],
+                ["Bartender", 0],
+                ["Bartender", 0],
+                ["Bartender", 0],
+                ["Bartender", 0]
+        ];
     }
 
     get playerName() {
@@ -24,6 +30,16 @@ class MainMenu {
 
     set playerName(value) {
         this._playerName = value;
+    }
+
+    updateHighscores(score) {
+        this._highscores.push([this._playerName, score]);
+
+        this._highscores.sort(function(a, b) {
+            return b[1] - a[1];
+        });
+
+        this._highscores.pop();
     }
 
     load() {
@@ -55,13 +71,13 @@ class MainMenu {
         logo.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/logo.png");
         svg.appendChild(logo);
 
-        for (let i = 1; i <= 10; i += 1) {
-            const backgroundGlass = SvgUtils.createSVG("image", { "class": "background-glass", "y": -200,
+        for (let i = 1; i <= 20; i += 1) {
+            const backgroundGlass = SvgUtils.createSVG("image", { "class": "background-glass",
+                    "y": -200,
 					"style": "pointer-events: none;",
-					"width": "80",
-					"height": "115"
-			});
-            
+					"width": 80,
+					"height": 115
+			});          
             if ((i % 3) === 0) {
                 backgroundGlass.setAttribute("transform", "rotate(45)");
             }
@@ -72,21 +88,21 @@ class MainMenu {
                 const animateX = SvgUtils.createSVG("animate", { "attributeName": "x",
                         "from": (-40 * i) - 100,
                         "to": 900 + (40 * i),
-                        "dur": (i % 5) + i + 5 + "s",
-                        "attributeType": "CSS",
+                        "dur": (i % 5) + i + "s",
+                        "attributeType": "XML",
                         "repeatCount": "indefinite",
                         "begin": (i % 3) + i + "s"
                 });
                 backgroundGlass.appendChild(animateX);
             }
             else {
-                backgroundGlass.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/glass_80_115_rotated.png");
+                backgroundGlass.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/redmartini.png");
                 backgroundGlass.setAttribute("x", "1000");
                 const animateX = SvgUtils.createSVG("animate", { "attributeName": "x",
                         "from": 900 + (40 * i),
                         "to": (-40 * i) - 100,
                         "dur": (i % 6) + i + "s",
-                        "attributeType": "CSS",
+                        "attributeType": "XML",
                         "repeatCount": "indefinite",
                         "begin": (i % 3) + i + "s"
                 });
@@ -94,10 +110,10 @@ class MainMenu {
             }
 
             const animateY = SvgUtils.createSVG("animate", { "attributeName": "y",
-                    "from": -200,
-                    "to": 900,
-                    "dur": (i % 5) + i + 5 + "s",
-                    "attributeType": "CSS",
+                    "from": -300,
+                    "to": 1000,
+                    "dur": (i % 5) + i + "s",
+                    "attributeType": "XML",
                     "repeatCount": "indefinite",
                     "begin": (i % 3) + i + "s"
             });
@@ -272,6 +288,15 @@ class MainMenu {
 
                 contents.forEach(e => svg.appendChild(e));
            }
+        }
+        else if (targetId === "quit") {
+            if (game) {
+                game.destroy();
+            }
+            window.removeEventListener("load", function(){});
+            window.removeEventListener("resize", mainMenu.onBodyResize);
+            document.head.innerHTML = "";
+            document.body.innerHTML = "";
         }
     }
 }
