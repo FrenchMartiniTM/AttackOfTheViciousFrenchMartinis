@@ -301,6 +301,8 @@ class MainMenu {
                     "class": "control-image",
                     "x": 210,
                     "y": 320,
+                    "width": 48,
+                    "height": 48,
                     "style": "pointer-events: none;"
                 });
                 leftArrow.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/leftArrow.png");
@@ -317,6 +319,8 @@ class MainMenu {
                     "class": "control-image",
                     "x": 370,
                     "y": 320,
+                    "width": 48,
+                    "height": 48,
                     "style": "pointer-events: none;"
                 });
                 rightArrow.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/rightArrow.png");
@@ -347,6 +351,8 @@ class MainMenu {
                     "class": "control-image",
                     "x": 140,
                     "y": 380,
+                    "width": 331,
+                    "height": 47,
                     "style": "pointer-events: none;"
                 });
                 space.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/space.png");
@@ -377,6 +383,8 @@ class MainMenu {
                     "class": "control-image",
                     "x": 290,
                     "y": 440,
+                    "width": 48,
+                    "height": 48,
                     "style": "pointer-events: none;"
                 });
                 escImg.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/esc.png");
@@ -473,8 +481,8 @@ class MainMenu {
                     const path = SvgUtils.createSVG("path", { "id": "path" + i });
                     const pathAnimate = SvgUtils.createSVG("animate", {
                         "attributeName": "d",
-                        "from": "m280,200 h0",
-                        "to": "m280,500 h400",
+                        "from": "m280,500 h0",
+                        "to": "m280,200 h300",
                         "dur": "24s",
                         "begin": (i * 3) + "s",
                         "repeatCount": "indefinite"
