@@ -180,7 +180,7 @@ class MainMenu {
         const targetId = this.id;
         if (targetId === "start") {
             document.getElementById('svgCon').style.display = 'none';
-            startGame();
+            GameManager.startGame();
         } else if (targetId === "controls" || targetId === "highscores" || targetId === "credits") {
             const svg = document.getElementById("svgCon");
             let infoPanel = SvgUtils.createSVG("rect", {

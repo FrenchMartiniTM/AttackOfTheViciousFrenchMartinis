@@ -1,14 +1,5 @@
 let game;
 
-function startGame() {
-    if (!game) {
-        document.getElementById("svgCon").style.display = 'none';
-        game = new Phaser.Game(800, 600, Phaser.CANVAS, 'gameContainer', gameState);
-    } else {
-        togglePause();
-    }
-}
-
 const gameState = {
     preload,
     create,
@@ -115,12 +106,12 @@ function create() {
     launchWhiteMartini();
 
     pauseKey = this.input.keyboard.addKey(Phaser.Keyboard.ESC);
-    pauseKey.onDown.add(togglePause, this);
+    pauseKey.onDown.add(GameManager.togglePause, this);
 
     game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
-    fullScreenButton = game.add.button(game.width - 32, 0, 'fullscreen', toggleFullScreen, this);
+    fullScreenButton = game.add.button(game.width - 32, 0, 'fullscreen', GameManager.toggleFullScreen, this);
     fullScreenKey = this.input.keyboard.addKey(Phaser.Keyboard.F);
-    fullScreenKey.onDown.add(toggleFullScreen, this);
+    fullScreenKey.onDown.add(GameManager.toggleFullScreen, this);
 }
 
 function update() {
@@ -185,7 +176,7 @@ function getMartinis(onKill, image) {
     martinis.setAll('scale.x', 0.5);
     martinis.setAll('scale.y', 0.5);
     martinis.setAll('angle', 0);
-    martinis.forEach(function(enemy) {
+    martinis.forEach(function (enemy) {
         enemy.body.setSize(enemy.width, enemy.height); //makes the collision more accurate since it can hit lower area
         enemy.events.onKilled.add(onKill);
     });
@@ -276,7 +267,7 @@ function launchRedMartini() {
             enemy.reset(game.width / 2, -verticalSpacing * i);
             enemy.body.velocity.y = MARTINI.redMartini.initialSpeed;
 
-            enemy.update = function() {
+            enemy.update = function () {
                 this.body.x = this.startingX + Math.sin((this.y) / frequency) * spread;
 
                 bank = Math.cos((this.y + 60) / frequency)
@@ -299,16 +290,6 @@ function addHearts() {
     }
 }
 
-function togglePause() {
-
-    game.physics.arcade.isPaused = (game.physics.arcade.isPaused) ? false : true;
-    if (game.physics.arcade.isPaused) {
-        showMenu();
-    } else {
-        removeMenu();
-    }
-}
-
 function endGame() {
     playerHead.kill();
 
@@ -318,7 +299,7 @@ function endGame() {
     whiteMartinis.callAll('kill');
     redMartinis.callAll('kill');
 
-    addHighscore();
+    GameManager.addHighscore();
     gameOverText.revive();
     hearts.children = [];
 
@@ -333,14 +314,6 @@ function restart() {
 
     resetStartingGameStats();
     launchWhiteMartini();
-}
-
-function toggleFullScreen() {
-    if (game.scale.isFullScreen) {
-        game.scale.stopFullScreen();
-    } else {
-        game.scale.startFullScreen(true);
-    }
 }
 
 function resetStartingGameStats() {
@@ -370,20 +343,6 @@ function resetDifficulty() {
     MARTINI.redMartini.initialSpeed = 50;
     MARTINI.redMartini.minimumDelay = 10000;
     MARTINI.redMartini.maximumDelay = 14000;
-}
-
-function addHighscore() {
-    mainMenu.updateHighscores(GAME_VARIABLES.score);
-}
-
-function removeMenu() {
-    document.getElementById("svgCon").style.display = 'none';
-    document.getElementsByTagName("canvas")[0].style.display = 'block';
-}
-
-function showMenu() {
-    document.getElementsByTagName("canvas")[0].style.display = 'none';
-    document.getElementById("svgCon").style.display = 'inline-block';
 }
 
 function setDifficultyLevel() {
