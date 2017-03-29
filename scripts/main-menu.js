@@ -285,6 +285,101 @@ class MainMenu {
                 });
                 inputLabel.innerHTML = "Nickname:";
                 contents.push(inputLabel);
+                
+                const leftArrow = SvgUtils.createSVG("image", { "class": "control-image",
+                        "x": 210,
+                        "y": 320,
+                        "style": "pointer-events: none;"
+                });
+                leftArrow.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/leftArrow.png");
+                const leftArrowAnimate = SvgUtils.createSVG("animate", { "attributeName": "opacity",
+                        "values": "1;0;1",
+                        "dur": "2s",
+                        "repeatCount": "indefinite"
+                });
+                leftArrow.appendChild(leftArrowAnimate);
+                contents.push(leftArrow);
+                
+                const rightArrow = SvgUtils.createSVG("image", { "class": "control-image",
+                        "x": 370,
+                        "y": 320,
+                        "style": "pointer-events: none;"
+                });
+                rightArrow.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/rightArrow.png");
+                const rightArrowAnimate = SvgUtils.createSVG("animate", { "attributeName": "opacity",
+                        "values": "0;1;0",
+                        "dur": "2s",
+                        "repeatCount": "indefinite"
+                });
+                rightArrow.appendChild(rightArrowAnimate);
+                contents.push(rightArrow);
+
+                const movementLabel = SvgUtils.createSVG("text", { "class": "title-text",
+                        "x": 480,
+                        "y": 350,
+                        "id": "controls-title",
+                        "lengthAdjust": "spacingAndGlyphs",
+                        "fill": "#fff",
+                        "stroke": "#ff0000",
+                        "font-family": "Copperplate Gothic Light",
+                        "font-size": "24pt"
+                });
+                movementLabel.innerHTML = "Movement";
+                contents.push(movementLabel);
+                
+                const space = SvgUtils.createSVG("image", { "class": "control-image",
+                        "x": 140,
+                        "y": 380,
+                        "style": "pointer-events: none;"
+                });
+                space.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/space.png");
+                const spaceAnimate = SvgUtils.createSVG("animate", { "attributeName": "opacity",
+                        "values": "0;1;0",
+                        "dur": "1s",
+                        "repeatCount": "indefinite"
+                });
+                space.appendChild(spaceAnimate);
+                contents.push(space);
+
+                const attackLabel = SvgUtils.createSVG("text", { "class": "title-text",
+                        "x": 500,
+                        "y": 410,
+                        "id": "controls-title",
+                        "lengthAdjust": "spacingAndGlyphs",
+                        "fill": "#fff",
+                        "stroke": "#ff0000",
+                        "font-family": "Copperplate Gothic Light",
+                        "font-size": "24pt"
+                });
+                attackLabel.innerHTML = "Attack";
+                contents.push(attackLabel);
+                
+                const escImg = SvgUtils.createSVG("image", { "class": "control-image",
+                        "x": 290,
+                        "y": 440,
+                        "style": "pointer-events: none;"
+                });
+                escImg.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "assets/images/esc.png");
+                const escAnimate = SvgUtils.createSVG("animate", { "attributeName": "opacity",
+                        "values": "0;1;0",
+                        "dur": "3s",
+                        "repeatCount": "indefinite"
+                });
+                escImg.appendChild(escAnimate);
+                contents.push(escImg);
+
+                const pauseLabel = SvgUtils.createSVG("text", { "class": "title-text",
+                        "x": 440,
+                        "y": 470,
+                        "id": "controls-title",
+                        "lengthAdjust": "spacingAndGlyphs",
+                        "fill": "#fff",
+                        "stroke": "#ff0000",
+                        "font-family": "Copperplate Gothic Light",
+                        "font-size": "24pt"
+                });
+                pauseLabel.innerHTML = "Pause / Menu";
+                contents.push(pauseLabel);
 
                 contents.forEach(e => svg.appendChild(e));
            }
@@ -308,16 +403,16 @@ class MainMenu {
 
                 for (let i = 0; i < mainMenu._highscores.length; i+= 1) {
                     const userText = SvgUtils.createSVG("text", { "class": "highscore-text-username",
-                        "x": 140,
-                        "y": 250 + (i * 50)
+                            "x": 140,
+                            "y": 250 + (i * 50)
                     });
                     userText.innerHTML = "" + (i + 1) + ". " + mainMenu._highscores[i][0];
                     symbol.appendChild(userText);
 
                     let scoresText = "" + mainMenu._highscores[i][1];
                     const userScore = SvgUtils.createSVG("text", { "class": "highscore-text-username",
-                        "x": 660 - (scoresText.length * 30),
-                        "y": 250 + (i * 50)
+                            "x": 660 - (scoresText.length * 30),
+                            "y": 250 + (i * 50)
                     });
                     userScore.innerHTML = scoresText;
                     symbol.appendChild(userScore);
@@ -329,9 +424,51 @@ class MainMenu {
                     use.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#text-symbol");
                     contents.push(use);
                 }
+            }
 
-                contents.forEach(e => svg.appendChild(e));
+           if (targetId === "credits") {
+                let paths = ["Arnaudov_St", "bobi_dobroto", "dreadlocker", "gchankov", "ludzhev", "martinboykov", "rosen.urkov"];
+
+                const title = SvgUtils.createSVG("text", { "class": "title-text",
+                        "x": 240,
+                        "y": 160,
+                        "id": "controls-title",
+                        "lengthAdjust": "spacingAndGlyphs",
+                        "textLength": (2 * buttonWidth - ((buttonWidth / buttonText.length) | 0)),
+                        "fill": "#fff",
+                        "stroke": "#ff0000",
+                        "font-family": "Copperplate Gothic Light",
+                        "font-size": "40pt"
+                });
+                title.innerHTML = "Credits";
+                contents.push(title);
+
+                for (let i = 0; i < paths.length; i += 1) {
+                    const path = SvgUtils.createSVG("path", { "id": "path" + i});
+                    const pathAnimate = SvgUtils.createSVG("animate", { "attributeName": "d",
+                            "from": "m280,200 h0",
+                            "to": "m280,500 h400",
+                            "dur": "24s",
+                            "begin": (i * 3) + "s", 
+                            "repeatCount": "indefinite"
+                    });
+                    path.appendChild(pathAnimate);
+                    contents.push(path);
+
+
+                    const creditsLine = SvgUtils.createSVG("text", { "fill": "#7FFF00",
+                            "font-family": "Copperplate Gothic Light",
+                            "font-size": "24pt"
+                    });
+                    const textPath = SvgUtils.createSVG("textPath");
+                    textPath.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#path" + i);
+                    textPath.innerHTML = paths[i];
+                    creditsLine.appendChild(textPath);
+                    contents.push(creditsLine);
+                }
            }
+            
+            contents.forEach(e => svg.appendChild(e));
         }
         else if (targetId === "quit") {
             if (game) {
