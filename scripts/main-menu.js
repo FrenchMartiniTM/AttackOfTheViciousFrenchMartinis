@@ -164,7 +164,7 @@ class MainMenu {
                     "font-size": "40px"
                 });
 
-                buttonLabel.innerHTML = buttonLabels[i];
+                buttonLabel.textContent = buttonLabels[i];
                 svg.appendChild(buttonLabel);
                 svg.appendChild(button);
             }
@@ -223,7 +223,7 @@ class MainMenu {
                     "font-size": "30px"
                 });
 
-                closeButtonLabel.innerHTML = buttonText;
+                closeButtonLabel.textContent = buttonText;
 
                 const button = SvgUtils.createSVG("rect", {
                     "class": "button-close",
@@ -305,7 +305,7 @@ class MainMenu {
 
             if (targetId === "controls") {
                 const title = createTitle();
-                title.innerHTML = "Controls";
+                title.textContent = "Controls";
                 contents.push(title);
 
                 const nicknameInput = SvgUtils.createSVG("foreignObject", {
@@ -329,7 +329,7 @@ class MainMenu {
                 contents.push(nicknameInput);
 
                 const inputLabel = createTitle(240, 260, (buttonWidth - ((buttonWidth / buttonText.length) | 0)), '24pt');
-                inputLabel.innerHTML = "Nickname:";
+                inputLabel.textContent = "Nickname:";
                 contents.push(inputLabel);
 
                 const leftArrow = createImg(210, 320);
@@ -345,7 +345,7 @@ class MainMenu {
                 contents.push(rightArrow);
 
                 const movementLabel = createLabel(480, 350);
-                movementLabel.innerHTML = "Movement";
+                movementLabel.textContent = "Movement";
                 contents.push(movementLabel);
 
                 const space = createImg(140, 380, 331, 47);
@@ -355,7 +355,7 @@ class MainMenu {
                 contents.push(space);
 
                 const attackLabel = createLabel(500, 410);
-                attackLabel.innerHTML = "Attack";
+                attackLabel.textContent = "Attack";
                 contents.push(attackLabel);
 
                 const escImg = createImg(290, 440);
@@ -365,7 +365,7 @@ class MainMenu {
                 contents.push(escImg);
 
                 const pauseLabel = createLabel(440, 470);
-                pauseLabel.innerHTML = "Pause / Menu";
+                pauseLabel.textContent = "Pause / Menu";
                 contents.push(pauseLabel);
 
                 contents.forEach(x => svg.appendChild(x));
@@ -373,7 +373,7 @@ class MainMenu {
 
             if (targetId === "highscores") {
                 const title = createTitle();
-                title.innerHTML = "Highscores";
+                title.textContent = "Highscores";
                 contents.push(title);
 
                 const symbol = SvgUtils.createSVG("symbol", { "id": "text-symbol" });
@@ -383,7 +383,7 @@ class MainMenu {
                         "x": 140,
                         "y": 250 + (i * 50)
                     });
-                    userText.innerHTML = "" + (i + 1) + ". " + mainMenu.highscores[i][0];
+                    userText.textContent = "" + (i + 1) + ". " + mainMenu.highscores[i][0];
                     symbol.appendChild(userText);
 
                     let scoresText = "" + mainMenu.highscores[i][1];
@@ -392,7 +392,7 @@ class MainMenu {
                         "x": 660 - (scoresText.length * 30),
                         "y": 250 + (i * 50)
                     });
-                    userScore.innerHTML = scoresText;
+                    userScore.textContent = scoresText;
                     symbol.appendChild(userScore);
                 }
                 contents.push(symbol);
@@ -406,7 +406,7 @@ class MainMenu {
 
             if (targetId === "credits") {
                 const title = createTitle();
-                title.innerHTML = "Credits";
+                title.textContent = "Credits";
                 contents.push(title);
 
                 const names = ["Arnaudov_St", "gchankov", "ludzhev", "martinboykov", "rosen.urkov"];
@@ -431,7 +431,7 @@ class MainMenu {
 
                     const textPath = SvgUtils.createSVG("textPath");
                     textPath.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#path" + i);
-                    textPath.innerHTML = names[i];
+                    textPath.textContent = names[i];
                     creditsLine.appendChild(textPath);
                     contents.push(creditsLine);
                 }

@@ -8,7 +8,6 @@ const gameState = {
 };
 
 var player,
-    playerHead,
 
     bar,
     barborder,
@@ -45,7 +44,6 @@ function preload() {
     game.load.spritesheet('white-explosion', 'assets/images/explode.png', 133, 95, 6);
     game.load.spritesheet('red-explosion', 'assets/images/explode1.png', 128, 128, 16);
     game.load.image('barborder', './assets/images/barborder.png');
-    game.load.image('playerhead', './assets/images/playerhead.png');
     game.load.image('heart', './assets/images/heart.png');
     game.load.image('fullscreen', './assets/images/fullscreen.png');
 }
@@ -92,9 +90,6 @@ function create() {
     cursors = game.input.keyboard.createCursorKeys();
     fireButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
-    playerHead = game.add.sprite(PLAYER.HEAD.STARTING_POSITION_X, PLAYER.HEAD.STARTING_POSITION_Y, 'playerhead');
-    game.physics.enable(playerHead, Phaser.Physics.ARCADE);
-    playerHead.alpha = 0; // uncomment if you want the red line to disappear
 
     whiteExplosions = getExplosions('white-explosion');
     redExplosions = getExplosions('red-explosion');
@@ -115,42 +110,31 @@ function create() {
 
 function update() {
     player.body.velocity.setTo(0, 0);
-    playerHead.body.velocity.setTo(0, 0);
 
     if (cursors.left.isDown) {
         player.moveLeft();
-        playerHead.body.velocity.x = -PLAYER.MAX_SPEED;
     } else if (cursors.right.isDown) {
         player.moveRight();
-        playerHead.body.velocity.x = PLAYER.MAX_SPEED;
     }
 
     if (player.alive && (fireButton.isDown || game.input.activePointer.isDown)) {
         weapon.fireBullet(GAME_VARIABLES.weaponLevel, player, GAME_VARIABLES.factorDifficulty);
     }
 
-    if (player.x > game.width - 50) {
-        player.x = game.width - 50;
-        playerHead.x = player.x - 3;
-    }
-
-    if (player.x < 50) {
-        player.x = 50;
-        playerHead.x = player.x - 3;
-    }
-
-    game.physics.arcade.overlap(playerHead, whiteMartinis, playerCollide, null, this);
+    game.physics.arcade.overlap(player, whiteMartinis, playerCollide, null, this);
     game.physics.arcade.overlap(whiteMartinis, weapon, hitEnemy, null, this);
     game.physics.arcade.overlap(barborder, whiteMartinis, barCollide, null, this);
 
-    game.physics.arcade.overlap(playerHead, redMartinis, playerCollide, null, this);
+    game.physics.arcade.overlap(player, redMartinis, playerCollide, null, this);
     game.physics.arcade.overlap(redMartinis, weapon, hitEnemy, null, this);
     game.physics.arcade.overlap(barborder, redMartinis, barCollide, null, this);
 }
 
 function render() {
-
+    //game.debug.bodyInfo(player, 32, 32);
+    //game.debug.body(player);
 }
+
 
 function getExplosions(explosionAnimation) {
     const explosionType = game.add.group();
@@ -183,7 +167,7 @@ function getMartinis(onKill, image) {
     return martinis;
 }
 
-function playerCollide(playerHead, enemy) {
+function playerCollide(enemy) {
     hearts.callAll('kill');
     player.kill();
     endGame();
@@ -290,8 +274,6 @@ function addHearts() {
 }
 
 function endGame() {
-    playerHead.kill();
-
     game.time.events.remove(redMartiniLaunchTimer);
     game.time.events.remove(whiteMartiniLaunchTimer);
 
@@ -309,7 +291,6 @@ function restart() {
     gameOverText.kill();
     player.alive = true;
     player.reset(PLAYER.STARTING_POSITION_X, PLAYER.STARTING_POSITION_Y);
-    playerHead.reset(PLAYER.HEAD.STARTING_POSITION_X, PLAYER.HEAD.STARTING_POSITION_Y);
 
     resetStartingGameStats();
     launchWhiteMartini();

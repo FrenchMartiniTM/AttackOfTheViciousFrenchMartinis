@@ -4,6 +4,7 @@ class Bartender extends Phaser.Sprite {
         this.anchor.setTo(0.5, 0.5);
         this.lives = 3;
         game.physics.enable(this, Phaser.Physics.ARCADE);
+        this.body.setCircle(10, 35);
         this.body.maxVelocity.setTo(PLAYER.MAX_SPEED, PLAYER.MAX_SPEED);
         game.add.existing(this);
     }
