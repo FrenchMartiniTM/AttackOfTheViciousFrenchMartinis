@@ -11,7 +11,7 @@
 ### Application Demo
 - [**Live Preview**](https://rawgit.com/FrenchMartiniTM/AttackOfTheViciousFrenchMartinis/master/index.html)
 - [**Video Preview**](https://youtu.be/MDx99Mb4ZAk)
-- [**Telerik Academy Showcase System //TODO**](#)
+- [**Telerik Academy Showcase System //TODO**](http://best.telerikacademy.com/projects/575/Attack-Of-The-Vicious-French-Martinis)
 
 ### Game Description
 > Some say the olive is the best part of a martini. Martini drinkers often claim that garnishing the beverage with olives gives it an extra 
