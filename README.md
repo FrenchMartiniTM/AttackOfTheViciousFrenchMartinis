@@ -36,8 +36,8 @@ Your **life** and your career depends on that.
 ## Team "French Martini"
 | Team member         | Username     |
 | -------------       | :--------:   |
-| Stefan Arnaudov     | Arnaudov_St  |
-| Gancho Chankov      | gchankov     |
-| Stefan Ludzhev      | ludzhev      |
-| Martin Martinov     | martinboykov |
-| Rosen Urkov         | rosen.urkov  |
+| Stefan Arnaudov     | [**Arnaudov_St**](http://telerikacademy.com/Users/Arnaudov_St)  |
+| Gancho Chankov      | [**gchankov**](http://telerikacademy.com/Users/gchankov)     |
+| Stefan Ludzhev      | [**ludzhev**](http://telerikacademy.com/Users/ludzhev)      |
+| Martin Martinov     | [**martinboykov**](http://telerikacademy.com/Users/martinboykov) |
+| Rosen Urkov         | [**rosen.urkov**](http://telerikacademy.com/Users/rosen.urkov)  |
