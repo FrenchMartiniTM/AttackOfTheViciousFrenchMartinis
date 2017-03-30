@@ -1,14 +1,5 @@
 let game;
 
-function startGame() {
-    if (!game) {
-        document.getElementById("svgCon").style.display = 'none';
-        game = new Phaser.Game(800, 600, Phaser.CANVAS, 'gameContainer', gameState);
-    } else {
-        togglePause();
-    }
-}
-
 const gameState = {
     preload,
     create,
@@ -55,7 +46,6 @@ function preload() {
     game.load.spritesheet('red-explosion', 'assets/images/explode1.png', 128, 128, 16);
     game.load.image('barborder', './assets/images/barborder.png');
     game.load.image('playerhead', './assets/images/playerhead.png');
-    game.load.image('paused', './assets/images/paused.png');
     game.load.image('heart', './assets/images/heart.png');
     game.load.image('fullscreen', './assets/images/fullscreen.png');
 }
@@ -73,7 +63,7 @@ function create() {
     barborder = game.add.sprite(BAR.BORDER_POSITION_X, BAR.BORDER_POSITION_Y, 'barborder');
     game.physics.enable(barborder, Phaser.Physics.ARCADE);
     barborder.body.immovable = true;
-    //barborder.alpha = 0; // uncomment if you want the red line to disappear
+    barborder.alpha = 0; // uncomment if you want the red line to disappear
 
     gameOverText = game.add.text(
         game.world.centerX,
@@ -104,7 +94,7 @@ function create() {
 
     playerHead = game.add.sprite(PLAYER.HEAD.STARTING_POSITION_X, PLAYER.HEAD.STARTING_POSITION_Y, 'playerhead');
     game.physics.enable(playerHead, Phaser.Physics.ARCADE);
-    //playerHead.alpha = 0; // uncomment if you want the red line to disappear
+    playerHead.alpha = 0; // uncomment if you want the red line to disappear
 
     whiteExplosions = getExplosions('white-explosion');
     redExplosions = getExplosions('red-explosion');
@@ -115,12 +105,12 @@ function create() {
     launchWhiteMartini();
 
     pauseKey = this.input.keyboard.addKey(Phaser.Keyboard.ESC);
-    pauseKey.onDown.add(togglePause, this);
+    pauseKey.onDown.add(GameManager.togglePause, this);
 
     game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
-    fullScreenButton = game.add.button(game.width - 32, 0, 'fullscreen', toggleFullScreen, this);
+    fullScreenButton = game.add.button(game.width - 32, 0, 'fullscreen', GameManager.toggleFullScreen, this);
     fullScreenKey = this.input.keyboard.addKey(Phaser.Keyboard.F);
-    fullScreenKey.onDown.add(toggleFullScreen, this);
+    fullScreenKey.onDown.add(GameManager.toggleFullScreen, this);
 }
 
 function update() {
@@ -185,7 +175,7 @@ function getMartinis(onKill, image) {
     martinis.setAll('scale.x', 0.5);
     martinis.setAll('scale.y', 0.5);
     martinis.setAll('angle', 0);
-    martinis.forEach(function(enemy) {
+    martinis.forEach(function (enemy) {
         enemy.body.setSize(enemy.width, enemy.height); //makes the collision more accurate since it can hit lower area
         enemy.events.onKilled.add(onKill);
     });
@@ -238,7 +228,12 @@ function killMartini(martini, explosions, animation, speed) {
 }
 
 function launchWhiteMartini() {
-    if (!player.alive) {
+    whiteMartiniLaunchTimer = game.time.events.add(
+        game.rnd.integerInRange(MARTINI.whiteMartini.minimumDelay, MARTINI.whiteMartini.maximumDelay),
+        launchWhiteMartini
+    );
+    
+    if (!player.alive || game.physics.arcade.isPaused) {
         return;
     }
 
@@ -249,16 +244,17 @@ function launchWhiteMartini() {
 
         enemy.body.velocity.x = 0;
         enemy.body.velocity.y = MARTINI.whiteMartini.initialSpeed;
-
-        whiteMartiniLaunchTimer = game.time.events.add(
-            game.rnd.integerInRange(MARTINI.whiteMartini.minimumDelay, MARTINI.whiteMartini.maximumDelay),
-            launchWhiteMartini
-        );
     }
 }
 
 function launchRedMartini() {
-    if (!player.alive) {
+    //  Send another wave soon
+    redMartiniLaunchTimer = game.time.events.add(
+        game.rnd.integerInRange(MARTINI.redMartini.minimumDelay, MARTINI.redMartini.maximumDelay),
+        launchRedMartini
+    );
+
+    if (!player.alive || game.physics.arcade.isPaused) {
         return;
     }
 
@@ -276,7 +272,7 @@ function launchRedMartini() {
             enemy.reset(game.width / 2, -verticalSpacing * i);
             enemy.body.velocity.y = MARTINI.redMartini.initialSpeed;
 
-            enemy.update = function() {
+            enemy.update = function () {
                 this.body.x = this.startingX + Math.sin((this.y) / frequency) * spread;
 
                 bank = Math.cos((this.y + 60) / frequency)
@@ -285,30 +281,11 @@ function launchRedMartini() {
             };
         }
     }
-
-    //  Send another wave soon
-    redMartiniLaunchTimer = game.time.events.add(
-        game.rnd.integerInRange(MARTINI.redMartini.minimumDelay, MARTINI.redMartini.maximumDelay),
-        launchRedMartini
-    );
 }
 
 function addHearts() {
     for (var i = 0; i < player.lives; i += 1) {
         hearts.create(5 + i * 33, 560, 'heart');
-    }
-}
-
-function togglePause() {
-    if (!player.alive) {
-        return;
-    }
-
-    game.physics.arcade.isPaused = (game.physics.arcade.isPaused) ? false : true;
-    if (game.physics.arcade.isPaused) {
-        showMenu();
-    } else {
-        removeMenu();
     }
 }
 
@@ -321,7 +298,7 @@ function endGame() {
     whiteMartinis.callAll('kill');
     redMartinis.callAll('kill');
 
-    addHighscore();
+    GameManager.addHighscore();
     gameOverText.revive();
     hearts.children = [];
 
@@ -336,14 +313,6 @@ function restart() {
 
     resetStartingGameStats();
     launchWhiteMartini();
-}
-
-function toggleFullScreen() {
-    if (game.scale.isFullScreen) {
-        game.scale.stopFullScreen();
-    } else {
-        game.scale.startFullScreen(true);
-    }
 }
 
 function resetStartingGameStats() {
@@ -375,20 +344,6 @@ function resetDifficulty() {
     MARTINI.redMartini.maximumDelay = 14000;
 }
 
-function addHighscore() {
-    mainMenu.updateHighscores(GAME_VARIABLES.score);
-}
-
-function removeMenu() {
-    document.getElementById("svgCon").style.display = 'none';
-    document.getElementsByTagName("canvas")[0].style.display = 'block';
-}
-
-function showMenu() {
-    document.getElementsByTagName("canvas")[0].style.display = 'none';
-    document.getElementById("svgCon").style.display = 'inline-block';
-}
-
 function setDifficultyLevel() {
     switch (GAME_VARIABLES.score) {
         case 50:
@@ -406,14 +361,16 @@ function setDifficultyLevel() {
             launchRedMartini();
             break;
         case 400:
+        case 410:
             GAME_VARIABLES.factorDifficulty = 1.8;
             break;
         case 500:
+        case 510:
             GAME_VARIABLES.factorDifficulty = 2.0;
             GAME_VARIABLES.weaponLevel = 3;
             break;
         default:
-            break;
+            return;
     }
 
     (function improveDifficulty() {
