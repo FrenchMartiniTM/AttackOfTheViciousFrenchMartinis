@@ -11,7 +11,7 @@ class SvgUtils {
 
 class MainMenu {
     constructor() {
-        this.playerName = "Bartender"
+        this.playerName = "Bartender";
         this.highscores = [
             ["Bartender", 10000],
             ["Bartender", 1000],
@@ -23,7 +23,7 @@ class MainMenu {
 
     updateHighscores(score) {
         this.highscores.push([this.playerName, score]);
-        this.highscores.sort(function(a, b) {
+        this.highscores.sort(function (a, b) {
             return b[1] - a[1];
         });
 
@@ -236,7 +236,7 @@ class MainMenu {
                     "y": 520,
                 });
 
-                button.addEventListener("click", function() {
+                button.addEventListener("click", function () {
                     document.getElementById("button-label").remove();
                     document.getElementById("close").remove();
                     document.getElementById("info").remove();

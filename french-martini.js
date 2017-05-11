@@ -126,7 +126,7 @@ const gameState = {
     render
 };
 
-var player,
+let player,
     playerHead,
 
     bar,

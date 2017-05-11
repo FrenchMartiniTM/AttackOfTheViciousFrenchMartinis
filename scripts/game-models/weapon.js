@@ -4,7 +4,7 @@ class Weapon extends Phaser.Group {
         this.game = game;
         this.enableBody = true;
         this.timer = 0,
-            this.addMultiple(bullets);
+        this.addMultiple(bullets);
         this.setAll('exists', false);
         this.physicsBodyType = Phaser.Physics.ARCADE;
         game.add.existing(this);

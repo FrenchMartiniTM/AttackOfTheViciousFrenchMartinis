@@ -7,7 +7,7 @@ const gameState = {
     render
 };
 
-var player,
+let player,
 
     bar,
     barborder,
@@ -129,8 +129,6 @@ function update() {
 }
 
 function render() {
-    //game.debug.bodyInfo(player, 32, 32);
-    //game.debug.body(player);
 }
 
 
