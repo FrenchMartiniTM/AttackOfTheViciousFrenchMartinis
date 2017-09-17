@@ -4,6 +4,7 @@
 
 ## Project Description
  **The project is a shooter game with implemented main menu, pause, fullscreen, highscore functionalities, in-game leveling, a lot of animations and collisions.**   
+## [*Assignment*](https://github.com/TelerikAcademy/JavaScript-UI-and-DOM/blob/master/Teamwork/README.md)
 ### APIs
 - HTML Canvas / [**Phaser.js**](https://phaser.io/)
 - SVG
